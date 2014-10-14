@@ -14,18 +14,37 @@ TEST(MissingPlistFile)
   }
 END_TEST
 
-TEST(ValidPlistFile)
-  AppDelegate *del = [AppDelegate new];
-  NSDictionary *dict = @{ @"a": @"b" };
-  [dict writeToFile: [del plistPath] atomically: YES];
+TEST(InvalidPlistFile)
+  AppDelegate *appDelegate = [AppDelegate new];
+  NSString *plistPath = [appDelegate plistPath];
+  NSString *invalidStr = @"INVALID";
+  [invalidStr writeToFile: plistPath
+               atomically: YES
+                 encoding: NSUTF8StringEncoding
+                    error: nil];
   @try {
-    [del readInfoPlist];
-    AssertObjEqual(del.infoPlist, dict);
+    [appDelegate readInfoPlist];
+    Assert(false);
+  } @catch (NSException *e) {
+    AssertObjEqual([e name], @"Invalid Info.plist");
+  }
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  [fileManager removeItemAtPath: plistPath error: nil];
+END_TEST
+
+TEST(ValidPlistFile)
+  AppDelegate *appDelegate = [AppDelegate new];
+  NSString *plistPath = [appDelegate plistPath];
+  NSDictionary *dict = @{ @"a": @"b" };
+  [dict writeToFile: plistPath atomically: YES];
+  @try {
+    [appDelegate readInfoPlist];
+    AssertObjEqual(appDelegate.infoPlist, dict);
   } @catch (NSException *e) {
     Assert(false);
   }
   NSFileManager *fileManager = [NSFileManager defaultManager];
-  [fileManager removeItemAtPath: [del plistPath] error: nil];
+  [fileManager removeItemAtPath: plistPath error: nil];
 END_TEST
 
 END_TEST_SUITE
