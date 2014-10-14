@@ -20,6 +20,9 @@
 // Raises an NSException when the plist cannot be found or parsed.
 - (void) readInfoPlist;
 
+// Returns the path to the Info.plist file for this application or exe
+- (NSString *) plistPath;
+
 @property (nonatomic, assign) NSDictionary *infoPlist;
 @property (nonatomic, assign) JSContext    *mainContext;
 

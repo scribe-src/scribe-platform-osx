@@ -31,27 +31,17 @@
 //
 // Raises an NSException when the plist cannot be found or parsed.
 - (void) readInfoPlist {
-  NSBundle *bundle = [NSBundle mainBundle];
-  NSString *plistPath = nil;
+  BOOL isDir;
+  NSString *plistPath = [self plistPath];
   NSFileManager *fileManager = [NSFileManager defaultManager];
 
-  if (bundle) {
-    plistPath = [bundle pathForResource: @"Info" ofType: @"plist"];
-  }
-
-  if (!plistPath) {
-    NSString *cwd = [fileManager currentDirectoryPath];
-    plistPath = [cwd stringByAppendingString: @"/Info.plist"];
-  }
-
-  BOOL isDir;
   if ([fileManager fileExistsAtPath: plistPath isDirectory: &isDir]
        && !isDir) {
 
     self.infoPlist = [NSDictionary dictionaryWithContentsOfFile: plistPath];
 
   } else {
-    [NSException raise: @"Invalid Info.plist" format:
+    [NSException raise: @"Missing Info.plist" format:
       @"Info.plist file at %@ could not be found.", plistPath, nil
     ];
   }
@@ -61,6 +51,23 @@
       @"Info.plist file at %@ could not be parsed.", plistPath, nil
     ];
   }
+}
+
+- (NSString *) plistPath {
+  NSBundle *bundle = [NSBundle mainBundle];
+  NSString *plistPath = nil;
+
+  if (bundle) {
+    plistPath = [bundle pathForResource: @"Info" ofType: @"plist"];
+  }
+
+  if (!plistPath) {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *cwd = [fileManager currentDirectoryPath];
+    plistPath = [cwd stringByAppendingString: @"/Info.plist"];
+  }
+
+  return plistPath;
 }
 
 - (void) dealloc {

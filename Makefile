@@ -20,7 +20,12 @@ OUT_FILE=$(OUT_DIR)/Scribe
 OUT_TEST=$(OUT_DIR)/run-tests
 
 # Needed for linking
-FRAMEWORKS=-framework Cocoa -framework WebKit -framework JavaScriptCore
+FRAMEWORKS=-framework Cocoa -framework WebKit \
+           -framework JavaScriptCore
+
+# Include all src files except src/main.m in the test suite
+M_FILES = $(wildcard src/*.m)
+SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES))
 
 # Ensure that the `test` and `clean` targets always get run
 .PHONY: test clean
@@ -35,7 +40,7 @@ clean:
 	rm -rf $(OUT_DIR)/
 
 test:   all
-	$(CC) -g $(FRAMEWORKS) -lobjc $(TEST_FILES) \
+	$(CC) -g $(FRAMEWORKS) -lobjc $(TEST_FILES) $(SRC_FOR_TEST) \
 	  -I$(SRC_DIR) -I$(TEST_DIR)/support -o $(OUT_TEST)
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
 	$(OUT_TEST)
