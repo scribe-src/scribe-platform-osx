@@ -15,7 +15,7 @@ OUT_DIR=build
 OUT_FILE=Scribe
 
 # Needed for linking
-FRAMEWORKS=-framework Cocoa -framework WebKit
+FRAMEWORKS=-framework Cocoa -framework WebKit -framework JavaScriptCore
 
 # Ensure that the `test` and `clean` targets always get run
 .PHONY: clean
