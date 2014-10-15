@@ -5,6 +5,9 @@
 
 @synthesize infoPlist, mainContext;
 
+// This method is called on the delegate by NSApplicationMain() when
+// initialization is complete (when the Dock icon stops bouncing).
+// It is a part of the <NSApplicationDelegate> protocol.
 - (void) applicationDidFinishLaunching: (NSNotification *) n {
   @try {
     [self buildJSContext];
@@ -18,8 +21,11 @@
 
 // populates the {mainContext} ivar with a valid JS runtime context
 - (void) buildJSContext {
+  // build the vm and context
   JSVirtualMachine *vm = [[JSVirtualMachine new] autorelease];
   self.mainContext = [[[JSContext alloc] initWithVirtualMachine: vm] autorelease];
+
+  // inject the window.scribe global into the JavaScriptCore runtime
   [ScribeEngine inject: self.mainContext];
 }
 
@@ -52,30 +58,34 @@
 }
 
 // Executes the main.js Javascript execution entrypoint.
-// Raises an NSException when the main.js file is not valid or is missing.
+// Raises an NSException when the main.js file is not valid, is missing, or
+// when an exception is thrown during synchronous execution of the file.
 - (void) loadMainJS {
   NSString *jsPath = [self mainJSPath];
   NSError  *err  = nil;
 
-  if (jsPath) {
-    NSString *js = [NSString stringWithContentsOfFile: jsPath
-                                             encoding: NSUTF8StringEncoding
-                                                error: &err];
-    if (!err && js) {
-      [self.mainContext evaluateScript: js];
-    } else {
+  NSString *js = [NSString stringWithContentsOfFile: jsPath
+                                           encoding: NSUTF8StringEncoding
+                                              error: &err];
+  if (!err && js) {
+    js = [NSString stringWithFormat:
+      @"var err;try{(function(){%@})();}catch(e){err = e};err;", js];
 
-      [NSException raise: @"Invalid MainJS File" format:
-        @"An error occurred trying to read the MainJS File: %@\n\n%@",
-        jsPath, err
+    JSValue *jsErr = [self.mainContext evaluateScript: js];
+
+    if (![jsErr isUndefined]) {
+      [NSException raise: @"MainJS Runtime Exception" format:
+        @"An error occurred trying to execute the MainJS File: %@\n\n%@",
+        jsPath, jsErr
       ];
-
     }
   } else {
-    [NSException raise: @"Missing MainJS Entrypoint" format:
-      @"A Javascript entrypoint must be specified in the %@",
-      @"MainJS key in the Info.plist file"
+
+    [NSException raise: @"Invalid MainJS File" format:
+      @"An error occurred trying to read the MainJS File: %@\n\n%@",
+      jsPath, err
     ];
+
   }
 }
 

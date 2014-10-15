@@ -59,15 +59,73 @@ TEST(MainJSIsRun)
   AppDelegate *appDelegate = [[AppDelegate new] autorelease];
   NSString *plistPath = [appDelegate plistPath];
   NSString *mainJSPath = [appDelegate mainJSPath];
+
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  [fileManager removeItemAtPath: plistPath error: nil];
+  [fileManager removeItemAtPath: mainJSPath error: nil];
+
   NSDictionary *dict = @{ @"MainJS": @"main.js" };
   [dict writeToFile: plistPath atomically: YES];
   NSString *mainjs = @"x = 1;";
   [mainjs writeToFile: mainJSPath atomically: YES encoding: NSUTF8StringEncoding error: nil];
   [appDelegate applicationDidFinishLaunching: nil];
-  NSFileManager *fileManager = [NSFileManager defaultManager];
+  
   [fileManager removeItemAtPath: plistPath error: nil];
   [fileManager removeItemAtPath: mainJSPath error: nil];
   AssertFalse([[appDelegate mainContext][@"x"] isUndefined]);
+END_TEST
+
+TEST(MissingMainJSKeyRaiseException)
+  AppDelegate *appDelegate = [[AppDelegate new] autorelease];
+  @try {
+    [appDelegate loadMainJS];
+    Assert(false);
+  } @catch (NSException *e) {
+    AssertObjEqual([e name], @"Invalid MainJS File");
+  }
+END_TEST
+
+TEST(InvalidMainJSKeyRaiseException)
+  AppDelegate *appDelegate = [[AppDelegate new] autorelease];
+  NSString *jsPath = [appDelegate mainJSPath];
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSError *err = nil;
+
+  [fileManager createDirectoryAtPath: jsPath
+         withIntermediateDirectories: YES
+                          attributes: nil
+                               error: &err];
+
+  if (err) {
+    [NSException raise: @"Test Setup Failed" format: @"Dir error: %@", err];
+  }
+
+  @try {
+    [appDelegate loadMainJS];
+    Assert(false);
+  } @catch (NSException *e) {    
+    [fileManager removeItemAtPath: jsPath error: nil];
+    AssertObjEqual([e name], @"Invalid MainJS File");
+  }
+END_TEST
+
+TEST(RuntimeErrorInMainJSFileRaisesException)
+  AppDelegate *appDelegate = [[AppDelegate new] autorelease];
+  NSString *mainJSPath = [appDelegate mainJSPath];
+
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  [fileManager removeItemAtPath: mainJSPath error: nil];
+
+  NSString *mainjs = @"ijsdaalskj();";
+  [mainjs writeToFile: mainJSPath atomically: YES encoding: NSUTF8StringEncoding error: nil];
+  
+  @try {
+    [appDelegate loadMainJS];
+    Assert(false);
+  } @catch (NSException *e) {
+    [fileManager removeItemAtPath: mainJSPath error: nil];
+    AssertObjEqual([e name], @"MainJS Runtime Exception"); 
+  }
 END_TEST
 
 TEST(ScribeGlobalIsAvailableToJSEnvironment)
