@@ -7,10 +7,10 @@
   JSContext    *mainContext;
 }
 
-// populates the {mainContext} ivar with a valid JS runtime context
+// populates the {mainContext} ivar with a valid JS runtime context.
 - (void) buildJSContext;
 
-// Reads and acts on the contents of the Info.plist conf file
+// Reads and acts on the contents of the Info.plist conf file.
 - (void) processInfoPlist;
 
 // Attempts to populate the {infoPlist} ivar with the dictionary
@@ -20,8 +20,17 @@
 // Raises an NSException when the plist cannot be found or parsed.
 - (void) readInfoPlist;
 
-// Returns the path to the Info.plist file for this application or exe
+// Returns the path to the Info.plist file for this application or exe.
 - (NSString *) plistPath;
+
+// Returns the path to the main.js file that is the program entrypoint.
+// This can be specified in Info.plist under the {MainJS} key.
+// Defaults to "main.js" in the Bundle or current working directory.
+- (NSString *) mainJSPath;
+
+// Looks for +filename+ in either the bundle or the current working dir.
+- (NSString *) pathForResource: (NSString *)filename
+                        ofType: (NSString *)type;
 
 @property (nonatomic, assign) NSDictionary *infoPlist;
 @property (nonatomic, assign) JSContext    *mainContext;

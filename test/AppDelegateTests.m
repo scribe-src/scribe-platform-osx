@@ -6,7 +6,9 @@ TEST_SUITE(AppDelegateTests)
 
 TEST(MissingPlistFile)
   @try {
-    AppDelegate *del = [AppDelegate new];
+    AppDelegate *del = [[AppDelegate new] autorelease];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath: [del plistPath] error: nil];
     [del readInfoPlist];
     Assert(false);
   } @catch (NSException *e) {
@@ -14,8 +16,13 @@ TEST(MissingPlistFile)
   }
 END_TEST
 
+TEST(PlistPathDefaultValueIsInfoDotPlist)
+  AppDelegate *appDelegate = [[AppDelegate new] autorelease];
+  AssertObjEqual([[appDelegate plistPath] lastPathComponent], @"Info.plist");
+END_TEST
+
 TEST(InvalidPlistFile)
-  AppDelegate *appDelegate = [AppDelegate new];
+  AppDelegate *appDelegate = [[AppDelegate new] autorelease];
   NSString *plistPath = [appDelegate plistPath];
   NSString *invalidStr = @"INVALID";
   [invalidStr writeToFile: plistPath
@@ -33,18 +40,34 @@ TEST(InvalidPlistFile)
 END_TEST
 
 TEST(ValidPlistFile)
-  AppDelegate *appDelegate = [AppDelegate new];
+  AppDelegate *appDelegate = [[AppDelegate new] autorelease];
   NSString *plistPath = [appDelegate plistPath];
   NSDictionary *dict = @{ @"a": @"b" };
   [dict writeToFile: plistPath atomically: YES];
-  @try {
-    [appDelegate readInfoPlist];
-    AssertObjEqual(appDelegate.infoPlist, dict);
-  } @catch (NSException *e) {
-    Assert(false);
-  }
+  [appDelegate readInfoPlist];
   NSFileManager *fileManager = [NSFileManager defaultManager];
   [fileManager removeItemAtPath: plistPath error: nil];
+  AssertObjEqual(appDelegate.infoPlist, dict);
+END_TEST
+
+TEST(MainJSPathDefaultValueIsMainDotJS)
+  AppDelegate *appDelegate = [[AppDelegate new] autorelease];
+  AssertObjEqual([[appDelegate mainJSPath] lastPathComponent], @"main.js");
+END_TEST
+
+TEST(MainJSIsRun)
+  AppDelegate *appDelegate = [[AppDelegate new] autorelease];
+  NSString *plistPath = [appDelegate plistPath];
+  NSString *mainJSPath = [appDelegate mainJSPath];
+  NSDictionary *dict = @{ @"MainJS": @"main.js" };
+  [dict writeToFile: plistPath atomically: YES];
+  NSString *mainjs = @"x = 1;";
+  [mainjs writeToFile: mainJSPath atomically: YES encoding: NSUTF8StringEncoding error: nil];
+  [appDelegate applicationDidFinishLaunching: nil];
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  [fileManager removeItemAtPath: plistPath error: nil];
+  [fileManager removeItemAtPath: mainJSPath error: nil];
+  AssertFalse([[appDelegate mainContext][@"x"] isUndefined]);
 END_TEST
 
 END_TEST_SUITE
