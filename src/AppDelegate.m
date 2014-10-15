@@ -15,7 +15,7 @@
     [self loadMainJS];
   } @catch (NSException *e) {
     NSLog(@"Error occurred during initialization: %@", e);
-    // exit(1);
+    exit(1);
   }
 }
 
@@ -35,6 +35,14 @@
 //
 // Raises an NSException when the plist cannot be found or parsed.
 - (void) readInfoPlist {
+  self.infoPlist = [[NSBundle mainBundle] infoDictionary];
+
+#ifdef TEST_ENV
+  // None of the below code is really necessary anymore (since I
+  // realized I could call -infoDictionary and get the Hash),
+  // but I keep it around since it is useful for test stubbing
+  // and debugging
+
   BOOL isDir;
   NSString *plistPath = [self plistPath];
   NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -55,6 +63,7 @@
       @"Info.plist file at %@ could not be parsed.", plistPath, nil
     ];
   }
+#endif
 }
 
 // Executes the main.js Javascript execution entrypoint.
@@ -68,11 +77,14 @@
                                            encoding: NSUTF8StringEncoding
                                               error: &err];
   if (!err && js) {
+
+    // wrap the JS with a try{}catch{} so we can report errors
     js = [NSString stringWithFormat:
       @"var err;try{(function(){%@})();}catch(e){err = e};err;", js];
 
     JSValue *jsErr = [self.mainContext evaluateScript: js];
 
+    // Check and bubble any JS errors as objc Exceptions
     if (![jsErr isUndefined]) {
       [NSException raise: @"MainJS Runtime Exception" format:
         @"An error occurred trying to execute the MainJS File: %@\n\n%@",

@@ -1,4 +1,4 @@
-CC=clang
+maCC=clang
 
 # Where the JSC engine lib lives
 ENGINE_NAME=scribe-engine-jsc
@@ -20,7 +20,15 @@ OUT_DIR=build/Scribe.app/Contents/MacOS
 OUT_FILE=$(OUT_DIR)/Scribe
 OUT_TEST=build/run-tests
 
-INFO_PLIST_PATH=$(OUT_DIR)/../Info.plist
+# C-level Defines
+DEFINES=
+
+# Bundle directory
+APP_DIR=$(OUT_DIR)/..
+# Info.plist conf file for the .app bundle
+INFO_PLIST_PATH=$(APP_DIR)/Info.plist
+# The bootstrap main() script
+MAIN_JS_PATH=$(APP_DIR)/Resources/main.js
 
 # Needed for linking
 FRAMEWORKS=-framework Cocoa -framework WebKit \
@@ -37,7 +45,9 @@ all:
 	mkdir -p $(OUT_DIR)
 	$(CC) $(FRAMEWORKS) -lobjc -I$(ENGINE_SRC) -flat_namespace \
 		$(SRC_FILES) -o $(OUT_FILE)
-	cp $(SRC_DIR)/Info.plist $(INFO_PLIST_PATH)
+	cp $(SRC_DIR)/Info.plist $(APP_DIR)/Info.plist
+	mkdir -p $(MAIN_JS_PATH)
+	cp $(SRC_DIR)/main.js $(MAIN_JS_PATH)
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_FILE)\n"
 
 clean:
@@ -45,7 +55,8 @@ clean:
 
 test:   all
 	$(CC) -g $(FRAMEWORKS) -lobjc $(TEST_FILES) $(SRC_FOR_TEST) \
-	  -I$(SRC_DIR) -I$(ENGINE_SRC) -I$(TEST_INC) -o $(OUT_TEST)
+	  -I$(SRC_DIR) -I$(ENGINE_SRC) -I$(TEST_INC) -o $(OUT_TEST) \
+	  -D TEST_ENV
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
 	$(OUT_TEST)
 

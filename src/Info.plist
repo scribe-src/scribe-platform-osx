@@ -6,5 +6,7 @@
   <string>Scribe</string>
   <key>CFBundleIconFile</key>
   <string>AppIcon</string>
+  <key>MainJS</key>
+  <string>main.js</string>
 </dict>
 </plist>
