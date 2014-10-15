@@ -6,10 +6,10 @@ TEST_SUITE(AppDelegateTests)
 
 TEST(MissingPlistFile)
   @try {
-    AppDelegate *del = [[AppDelegate new] autorelease];
+    AppDelegate *appDelegate = [[AppDelegate new] autorelease];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    [fileManager removeItemAtPath: [del plistPath] error: nil];
-    [del readInfoPlist];
+    [fileManager removeItemAtPath: [appDelegate plistPath] error: nil];
+    [appDelegate readInfoPlist];
     Assert(false);
   } @catch (NSException *e) {
     AssertObjEqual([e name], @"Missing Info.plist");

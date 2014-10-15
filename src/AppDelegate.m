@@ -15,7 +15,7 @@
     [self loadMainJS];
   } @catch (NSException *e) {
     NSLog(@"Error occurred during initialization: %@", e);
-    exit(1);
+    // exit(1);
   }
 }
 

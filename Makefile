@@ -16,9 +16,11 @@ TEST_FILES=$(TEST_DIR)/**.m $(TEST_DIR)/support/**.m
 TEST_INC=$(TEST_DIR)/support
 
 # Properties of the output build files
-OUT_DIR=build
+OUT_DIR=build/Scribe.app/Contents/MacOS
 OUT_FILE=$(OUT_DIR)/Scribe
-OUT_TEST=$(OUT_DIR)/run-tests
+OUT_TEST=build/run-tests
+
+INFO_PLIST_PATH=$(OUT_DIR)/../Info.plist
 
 # Needed for linking
 FRAMEWORKS=-framework Cocoa -framework WebKit \
@@ -35,6 +37,7 @@ all:
 	mkdir -p $(OUT_DIR)
 	$(CC) $(FRAMEWORKS) -lobjc -I$(ENGINE_SRC) -flat_namespace \
 		$(SRC_FILES) -o $(OUT_FILE)
+	cp $(SRC_DIR)/Info.plist $(INFO_PLIST_PATH)
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_FILE)\n"
 
 clean:
