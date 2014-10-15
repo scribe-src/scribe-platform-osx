@@ -5,25 +5,20 @@
 @synthesize infoPlist, mainContext;
 
 - (void) applicationDidFinishLaunching: (NSNotification *) n {
-  [self buildJSContext];
-  [self processInfoPlist];
+  @try {
+    [self buildJSContext];
+    [self readInfoPlist];
+    [self loadMainJS];
+  } @catch (NSException *e) {
+    NSLog(@"Error occurred during initialization: %@", e);
+    exit(1);
+  }
 }
 
 // populates the {mainContext} ivar with a valid JS runtime context
 - (void) buildJSContext {
   JSVirtualMachine *vm = [[JSVirtualMachine new] autorelease];
-  mainContext = [[JSContext alloc] initWithVirtualMachine: vm];
-}
-
-// Reads and acts on the contents of the Info.plist conf file
-// To be called during initialization. Exits on error.
-- (void) processInfoPlist {
-  @try {
-    [self readInfoPlist];
-  } @catch (NSException *e) {
-    NSLog(@"%@", e);
-    exit(1);
-  }
+  self.mainContext = [[[JSContext alloc] initWithVirtualMachine: vm] autorelease];
 }
 
 // Attempts to populate the {infoPlist} ivar with the dictionary
@@ -50,6 +45,33 @@
   if (!self.infoPlist) {
     [NSException raise: @"Invalid Info.plist" format:
       @"Info.plist file at %@ could not be parsed.", plistPath, nil
+    ];
+  }
+}
+
+// Executes the main.js Javascript execution entrypoint
+- (void) loadMainJS {
+  NSString *jsPath = [self mainJSPath];
+  NSError  *err  = nil;
+
+  if (jsPath) {
+    NSString *js = [NSString stringWithContentsOfFile: jsPath
+                                             encoding: NSUTF8StringEncoding
+                                                error: &err];
+    if (!err && js) {
+      [self.mainContext evaluateScript: js];
+    } else {
+
+      [NSException raise: @"Invalid MainJS File" format:
+        @"An error occurred trying to read the MainJS File: %@\n\n%@",
+        jsPath, err
+      ];
+
+    }
+  } else {
+    [NSException raise: @"Missing MainJS Entrypoint" format:
+      @"A Javascript entrypoint must be specified in the %@",
+      @"MainJS key in the Info.plist file"
     ];
   }
 }
@@ -103,11 +125,6 @@
   }
 
   return plistPath;
-}
-
-- (void) dealloc {
-  [infoPlist release];
-  [super dealloc];
 }
 
 @end
