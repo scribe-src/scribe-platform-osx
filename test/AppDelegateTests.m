@@ -70,4 +70,19 @@ TEST(MainJSIsRun)
   AssertFalse([[appDelegate mainContext][@"x"] isUndefined]);
 END_TEST
 
+TEST(ScribeGlobalIsAvailableToJSEnvironment)
+  AppDelegate *appDelegate = [[AppDelegate new] autorelease];
+  NSString *plistPath = [appDelegate plistPath];
+  NSString *mainJSPath = [appDelegate mainJSPath];
+  NSDictionary *dict = @{ @"MainJS": @"main.js" };
+  [dict writeToFile: plistPath atomically: YES];
+  NSString *mainjs = @"";
+  [mainjs writeToFile: mainJSPath atomically: YES encoding: NSUTF8StringEncoding error: nil];
+  [appDelegate applicationDidFinishLaunching: nil];
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  [fileManager removeItemAtPath: plistPath error: nil];
+  [fileManager removeItemAtPath: mainJSPath error: nil];
+  AssertFalse([[appDelegate mainContext][@"scribe"] isUndefined]);
+END_TEST
+
 END_TEST_SUITE

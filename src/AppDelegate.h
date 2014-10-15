@@ -17,7 +17,8 @@
 // Raises an NSException when the plist cannot be found or parsed.
 - (void) readInfoPlist;
 
-// Executes the main.js Javascript execution entrypoint
+// Executes the main.js Javascript execution entrypoint.
+// Raises an NSException when the main.js file is not valid or is missing.
 - (void) loadMainJS;
 
 // Returns the path to the Info.plist file for this application or exe.
@@ -32,7 +33,10 @@
 - (NSString *) pathForResource: (NSString *)filename
                         ofType: (NSString *)type;
 
+// The plist configuration hash in this application's bundle
 @property (nonatomic, retain) NSDictionary *infoPlist;
+
+// The Javascript runtime for running the MainJS js entrypoint
 @property (nonatomic, retain) JSContext    *mainContext;
 
 @end

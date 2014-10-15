@@ -1,4 +1,5 @@
 #import "AppDelegate.h"
+#import "ScribeEngine.h"
 
 @implementation AppDelegate
 
@@ -19,6 +20,7 @@
 - (void) buildJSContext {
   JSVirtualMachine *vm = [[JSVirtualMachine new] autorelease];
   self.mainContext = [[[JSContext alloc] initWithVirtualMachine: vm] autorelease];
+  [ScribeEngine inject: self.mainContext];
 }
 
 // Attempts to populate the {infoPlist} ivar with the dictionary
@@ -49,7 +51,8 @@
   }
 }
 
-// Executes the main.js Javascript execution entrypoint
+// Executes the main.js Javascript execution entrypoint.
+// Raises an NSException when the main.js file is not valid or is missing.
 - (void) loadMainJS {
   NSString *jsPath = [self mainJSPath];
   NSError  *err  = nil;
@@ -101,6 +104,7 @@
 
   return [self pathForResource: fname ofType: ftype];
 }
+
 // Looks for +filename+ in either the bundle or the current working dir.
 - (NSString *) pathForResource: (NSString *)filename
                         ofType: (NSString *)type {
