@@ -16,19 +16,11 @@ TEST_FILES=$(TEST_DIR)/**.m $(TEST_DIR)/support/**.m
 TEST_INC=$(TEST_DIR)/support
 
 # Properties of the output build files
-OUT_DIR=build/Scribe.app/Contents/MacOS
+APP_DIR=build/Scribe.app
+RSRC_DIR=$(APP_DIR)/Resources
+OUT_DIR=$(APP_DIR)/Contents/MacOS
 OUT_FILE=$(OUT_DIR)/Scribe
 OUT_TEST=build/run-tests
-
-# C-level Defines
-DEFINES=
-
-# Bundle directory
-APP_DIR=$(OUT_DIR)/..
-# Info.plist conf file for the .app bundle
-INFO_PLIST_PATH=$(APP_DIR)/Info.plist
-# The bootstrap main() script
-MAIN_JS_PATH=$(APP_DIR)/Resources/main.js
 
 # Needed for linking
 FRAMEWORKS=-framework Cocoa -framework WebKit \
@@ -43,11 +35,11 @@ SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) $(ENGINE_SRC)/**.m
 
 all:
 	mkdir -p $(OUT_DIR)
+	mkdir -p $(RSRC_DIR)
 	$(CC) $(FRAMEWORKS) -lobjc -I$(ENGINE_SRC) -flat_namespace \
 		$(SRC_FILES) -o $(OUT_FILE)
 	cp $(SRC_DIR)/Info.plist $(APP_DIR)/Info.plist
-	mkdir -p $(MAIN_JS_PATH)
-	cp $(SRC_DIR)/main.js $(MAIN_JS_PATH)
+	cp $(SRC_DIR)/main.js $(RSRC_DIR)/main.js
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_FILE)\n"
 
 clean:
