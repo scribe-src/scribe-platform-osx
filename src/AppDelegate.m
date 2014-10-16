@@ -38,8 +38,9 @@
   self.infoPlist = [[NSBundle mainBundle] infoDictionary];
 
 #ifdef TEST_ENV
+
   // None of the below code is really necessary anymore (since I
-  // realized I could call -infoDictionary and get the Hash),
+  // remmebered I could call -infoDictionary and get the Hash),
   // but I keep it around since it is useful for test stubbing
   // and debugging
 

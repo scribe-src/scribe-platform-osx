@@ -17,7 +17,7 @@ TEST_INC=$(TEST_DIR)/support
 
 # Properties of the output build files
 APP_DIR=build/Scribe.app
-RSRC_DIR=$(APP_DIR)/Resources
+RSRC_DIR=$(APP_DIR)/Contents/Resources
 OUT_DIR=$(APP_DIR)/Contents/MacOS
 OUT_FILE=$(OUT_DIR)/Scribe
 OUT_TEST=build/run-tests
@@ -51,4 +51,3 @@ test:   all
 	  -D TEST_ENV
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
 	$(OUT_TEST)
-
