@@ -29,6 +29,7 @@ FRAMEWORKS=-framework Cocoa -framework WebKit \
 # Include all src files except src/main.m in the test suite
 M_FILES = $(wildcard src/*.m)
 SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) $(ENGINE_SRC)/**.m
+CFLAGS=-lobjc -lffi -arch x86_64 $(FRAMEWORKS)
 
 # Ensure that the `test` and `clean` targets always get run
 .PHONY: test clean
@@ -36,7 +37,7 @@ SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) $(ENGINE_SRC)/**.m
 all:
 	mkdir -p $(OUT_DIR)
 	mkdir -p $(RSRC_DIR)
-	$(CC) $(FRAMEWORKS) -lobjc -I$(ENGINE_SRC) -flat_namespace \
+	$(CC) $(CFLAGS) -I$(ENGINE_SRC) -flat_namespace \
 		$(SRC_FILES) -o $(OUT_FILE)
 	cp $(SRC_DIR)/Info.plist $(APP_DIR)/Info.plist
 	cp $(SRC_DIR)/main.js $(RSRC_DIR)/main.js
@@ -46,7 +47,7 @@ clean:
 	rm -rf $(OUT_DIR)/
 
 test:   all
-	$(CC) -g $(FRAMEWORKS) -lobjc $(TEST_FILES) $(SRC_FOR_TEST) \
+	$(CC) $(CFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
 	  -I$(SRC_DIR) -I$(ENGINE_SRC) -I$(TEST_INC) -o $(OUT_TEST) \
 	  -D TEST_ENV
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
