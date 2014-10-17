@@ -6,8 +6,8 @@
 
 @property (nonatomic, retain) WebView *webView;
 
+- (id) init;
 - (id) initWithFrame: (CGRect) frame;
-
 - (void) buildWebView;
 
 @end

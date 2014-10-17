@@ -14,6 +14,10 @@
   return self;
 }
 
+- (id) init {
+  return [self initWithFrame: CGRectMake(0, 0, 800, 800)];
+}
+
 - (void) buildWebView {
   webView = [[WebView alloc] initWithFrame: self.frame
                                  frameName: @"scribe"
