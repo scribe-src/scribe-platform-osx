@@ -6,7 +6,17 @@
   <string>Scribe</string>
   <key>CFBundleIconFile</key>
   <string>AppIcon</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.scribe.scribe</string>
+  <key>CFBundleName</key>
+  <string>Scribe</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
   <key>MainJS</key>
   <string>main.js</string>
+  <key>NSPrincipalClass</key>
+  <string>NSApplication</string>
+  <key>NSHighResolutionCapable</key>
+  <true/>
 </dict>
 </plist>

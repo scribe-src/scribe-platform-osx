@@ -1,9 +1,8 @@
-maCC=clang
+CC=clang
 
 # Where the JSC engine lib lives
 ENGINE_NAME=scribe-engine-jsc
 ENGINE_DIR=../$(ENGINE_NAME)
-ENGINE_LIB=$(ENGINE_DIR)/build/$(ENGINE_NAME).dylib
 ENGINE_SRC=$(ENGINE_DIR)/src
 
 # The files to compile
@@ -39,7 +38,7 @@ all:
 	mkdir -p $(RSRC_DIR)
 	$(CC) $(CFLAGS) -I$(ENGINE_SRC) -flat_namespace \
 		$(SRC_FILES) -o $(OUT_FILE)
-	cp $(SRC_DIR)/Info.plist $(APP_DIR)/Info.plist
+	cp $(SRC_DIR)/Info.plist $(APP_DIR)/Contents/Info.plist
 	cp $(SRC_DIR)/main.js $(RSRC_DIR)/main.js
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_FILE)\n"
 
