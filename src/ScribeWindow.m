@@ -1,4 +1,5 @@
 #import "ScribeWindow.h"
+#import "ScribeEngine.h"
 
 @implementation ScribeWindow
 
@@ -22,6 +23,7 @@
   webView = [[WebView alloc] initWithFrame: self.frame
                                  frameName: @"scribe"
                                  groupName: nil];
+  webView.frameLoadDelegate = self;
 
   WebPreferences* prefs = [webView preferences];
   [prefs _setLocalStorageDatabasePath: @"~/Library/Application Support/MyApp"];
@@ -37,4 +39,12 @@
   [[webView mainFrame] loadRequest: request];
 }
 
+- (void)webView: (WebView *) webView
+        didCreateJavaScriptContext: (JSContext *) context
+        forFrame: (WebFrame *) frame {
+  [ScribeEngine inject: context];
+}
+
 @end
+
+
