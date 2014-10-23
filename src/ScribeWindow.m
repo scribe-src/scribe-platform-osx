@@ -22,9 +22,11 @@
   webView = [[WebView alloc] initWithFrame: self.frame
                                  frameName: @"scribe"
                                  groupName: nil];
-  NSURL *url = [NSURL URLWithString: @"http://example.com"];
-  NSURLRequest *request = [NSURLRequest requestWithURL: url];
-  [[webView mainFrame] loadRequest: request];
+
+  WebPreferences* prefs = [webView preferences];
+  [prefs _setLocalStorageDatabasePath: @"~/Library/Application Support/MyApp"];
+  [prefs setLocalStorageEnabled:YES];
+
   [self setContentView: webView];
 }
 

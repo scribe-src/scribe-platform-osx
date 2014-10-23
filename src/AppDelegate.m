@@ -27,7 +27,7 @@
 
   // inject the window.scribe global into the JavaScriptCore runtime
   ScribeEngine *engine = [ScribeEngine inject: self.mainContext];
-  [engine.jsCocoa setObject: [ScribeWindow class] withName: @"ScribeWindow"];
+  // [engine.jsCocoa setObject: [ScribeWindow class] withName: @"ScribeWindow"];
 }
 
 // Attempts to populate the {infoPlist} ivar with the dictionary

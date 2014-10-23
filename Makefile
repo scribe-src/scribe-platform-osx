@@ -15,6 +15,7 @@ TEST_FILES=$(TEST_DIR)/**.m $(TEST_DIR)/support/**.m
 TEST_INC=$(TEST_DIR)/support
 
 # Properties of the output build files
+RES_DIR=res
 APP_DIR=build/Scribe.app
 RSRC_DIR=$(APP_DIR)/Contents/Resources
 OUT_DIR=$(APP_DIR)/Contents/MacOS
@@ -23,7 +24,7 @@ OUT_TEST=build/run-tests
 
 # Needed for linking
 FRAMEWORKS=-framework Cocoa -framework WebKit \
-           -framework JavaScriptCore
+           -framework JavaScriptCore -framework AppKit
 
 # Include all src files except src/main.m in the test suite
 M_FILES = $(wildcard src/*.m)
@@ -35,17 +36,15 @@ CFLAGS=-lobjc -lffi -arch x86_64 $(FRAMEWORKS)
 
 all:
 	mkdir -p $(OUT_DIR)
-	mkdir -p $(RSRC_DIR)
 	$(CC) $(CFLAGS) -I$(ENGINE_SRC) -flat_namespace \
 		$(SRC_FILES) -o $(OUT_FILE)
-	cp $(SRC_DIR)/Info.plist $(APP_DIR)/Contents/Info.plist
-	cp $(SRC_DIR)/main.js $(RSRC_DIR)/main.js
+	cp -R $(RES_DIR)/ $(APP_DIR)/
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_FILE)\n"
 
 clean:
-	rm -rf $(OUT_DIR)/
+	rm -rf $(APP_DIR)/
 
-test:   all
+test:
 	$(CC) $(CFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
 	  -I$(SRC_DIR) -I$(ENGINE_SRC) -I$(TEST_INC) -o $(OUT_TEST) \
 	  -D TEST_ENV

@@ -14,8 +14,8 @@
   <string>APPL</string>
   <key>MainJS</key>
   <string>main.js</string>
-  <key>NSPrincipalClass</key>
-  <string>NSApplication</string>
+  <key>NSMainNibFile</key>
+  <string>MainMenu</string>
   <key>NSHighResolutionCapable</key>
   <true/>
 </dict>
