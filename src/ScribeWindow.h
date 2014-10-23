@@ -11,5 +11,6 @@
 - (id) init;
 - (id) initWithFrame: (CGRect) frame;
 - (void) buildWebView;
+- (void) navigateToURL: (NSString *) url;
 
 @end

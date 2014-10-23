@@ -17,3 +17,6 @@ var quitMenuItem = NSMenuItem.alloc['initWithTitle:action:keyEquivalent:'](
 ).autorelease;
 appMenu.addItem(quitMenuItem);
 appMenuItem.setSubmenu(appMenu);
+
+win.center;
+win.navigateToURL('index.html')

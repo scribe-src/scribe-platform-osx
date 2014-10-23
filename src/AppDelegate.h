@@ -33,6 +33,9 @@
 - (NSString *) pathForResource: (NSString *)filename
                         ofType: (NSString *)type;
 
+// The baseURL for webView SOP (defaults to file:// path)
+- (NSURL *)baseURL;
+
 // The plist configuration hash in this application's bundle
 @property (nonatomic, retain) NSDictionary *infoPlist;
 

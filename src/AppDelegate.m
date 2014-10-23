@@ -26,8 +26,7 @@
   self.mainContext = [[[JSContext alloc] initWithVirtualMachine: vm] autorelease];
 
   // inject the window.scribe global into the JavaScriptCore runtime
-  ScribeEngine *engine = [ScribeEngine inject: self.mainContext];
-  // [engine.jsCocoa setObject: [ScribeWindow class] withName: @"ScribeWindow"];
+  [ScribeEngine inject: self.mainContext];
 }
 
 // Attempts to populate the {infoPlist} ivar with the dictionary
@@ -153,6 +152,16 @@
   }
 
   return plistPath;
+}
+
+// The baseURL for webView SOP (defaults to file:// path)
+- (NSURL *)baseURL {
+  NSString *exe = [[[NSProcessInfo processInfo] arguments] objectAtIndex: 0];
+  NSString *cwd = [exe stringByDeletingLastPathComponent];
+  NSString *contents = [cwd stringByDeletingLastPathComponent];
+  return [NSURL URLWithString:
+    [NSString stringWithFormat: @"file://%@/Resources/", contents]
+  ];
 }
 
 @end

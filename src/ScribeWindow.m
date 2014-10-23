@@ -30,4 +30,11 @@
   [self setContentView: webView];
 }
 
+- (void) navigateToURL: (NSString *) url {
+  NSURL *resolvedURL = [NSURL URLWithString: url
+                      relativeToURL: [[NSApp delegate] baseURL]];
+  NSURLRequest *request = [NSURLRequest requestWithURL: resolvedURL];
+  [[webView mainFrame] loadRequest: request];
+}
+
 @end
