@@ -44,6 +44,12 @@ all:
 clean:
 	rm -rf $(APP_DIR)/
 
+open:
+	open $(APP_DIR)
+
+run:
+	$(OUT_FILE)
+
 test:
 	$(CC) $(CFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
 	  -I$(SRC_DIR) -I$(ENGINE_SRC) -I$(TEST_INC) -o $(OUT_TEST) \

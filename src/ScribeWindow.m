@@ -1,18 +1,27 @@
 #import "ScribeWindow.h"
-#import "ScribeEngine.h"
 
 @implementation ScribeWindow
 
-@synthesize webView;
+@synthesize webView, scribeEngine;
 
-- (id) initWithFrame: (CGRect) frame {
-  if (self = [super initWithContentRect: frame
-                              styleMask: NSTitledWindowMask
-                                backing: NSBackingStoreBuffered
-                                  defer: NO]) {
+- (id)initWithContentRect: (NSRect) contentRect
+                          styleMask: (NSUInteger) windowStyle
+                            backing: (NSBackingStoreType) bufferingType
+                              defer: (BOOL) deferCreation {
+  if (self = [super initWithContentRect: contentRect
+                              styleMask: windowStyle
+                                backing: bufferingType
+                                  defer: deferCreation]) {
     [self buildWebView];
   }
   return self;
+}
+
+- (id) initWithFrame: (CGRect) frame {
+  return [self initWithContentRect: frame
+                         styleMask: NSTitledWindowMask
+                           backing: NSBackingStoreBuffered
+                             defer: NO];
 }
 
 - (id) init {
@@ -24,6 +33,7 @@
                                  frameName: @"scribe"
                                  groupName: nil];
   webView.frameLoadDelegate = self;
+  // [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"WebKitDeveloperExtras"];
 
   WebPreferences* prefs = [webView preferences];
   [prefs _setLocalStorageDatabasePath: @"~/Library/Application Support/MyApp"];
@@ -39,11 +49,24 @@
   [[webView mainFrame] loadRequest: request];
 }
 
+// Add injection hook for injecting ScribeEngine scribe global
 - (void)webView: (WebView *) webView
         didCreateJavaScriptContext: (JSContext *) context
         forFrame: (WebFrame *) frame {
-  [ScribeEngine inject: context];
+  ScribeEngine *engine = [ScribeEngine inject: context];
+  if (frame == [webView mainFrame]) {
+    self.scribeEngine = engine;
+  }
 }
+
+// - (void)webView: (WebView *) sender
+//         didClearWindowObject: (WebScriptObject *) windowObject
+//         forFrame: (WebFrame *) frame {
+//   ScribeEngine *engine = [ScribeEngine inject: mainFrame];
+//   if (frame == [webView mainFrame]) {
+//     self.scribeEngine = engine;
+//   }
+// }
 
 @end
 
