@@ -45,6 +45,16 @@ function AssertNotEqual(x, y) {
     throw new Error("Expected "+O2S(x)+" to !== "+O2S(y)+".");
 }
 
+function AssertDefined(x) {
+  if (typeof x === 'undefined')
+    throw new Error("Expected "+O2S(x)+" to be defined.");
+}
+
+function AssertUndefined(x) {
+  if (typeof x !== 'undefined')
+    throw new Error("Expected "+O2S(x)+" to be undefined.");
+}
+
 // Implement a tiny DSL for adding multiple tests in one file
 var global = this;
 global.tests = [];
