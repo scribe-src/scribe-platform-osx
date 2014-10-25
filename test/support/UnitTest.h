@@ -47,7 +47,7 @@
 
 #define END_SUITE_INIT }
 
-#define FORK(B) - (BOOL) shouldFork { return B; }
+#define FORK(SHOULD) - (BOOL) shouldFork { return SHOULD; }
 
 //
 // Test assertion helpers. These throw a helpful exception

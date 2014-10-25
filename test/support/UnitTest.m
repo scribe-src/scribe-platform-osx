@@ -126,7 +126,7 @@ void AssertInstanceOfClass(id instance, Class klass) {
 
 @implementation TestSuite
 - (void) suiteInitialize {}
-- (BOOL) shouldFork { return NO; }
+- (BOOL) shouldFork { return YES; }
 @end
 
 unsigned int testsRan = 0;
@@ -220,14 +220,14 @@ void SignalHandler(int sig) {
 
   [backtraceStr insertString: signal atIndex: 0];
 
-#ifdef FORK_TESTS
+// #ifdef FORK_TESTS
   ReportException(backtraceStr);
-#else
-  Print(@"\n");
-  for (int i = 1; i < frames; i++) {
-    PrintBad([NSString stringWithFormat:@"%s\n", syms[i]]);
-  }
-#endif
+// #else
+//   Print(@"\n");
+//   for (int i = 1; i < frames; i++) {
+//     PrintBad([NSString stringWithFormat:@"%s\n", syms[i]]);
+//   }
+// #endif
 
   [pool drain];
   exit(1);
@@ -270,12 +270,15 @@ unsigned int RunTests(id klass) {
     testsRan++;
 
     BOOL isChild = NO;
+    exceptionPipe = [NSPipe pipe];
+
     if ([instance shouldFork]) {
-      exceptionPipe = [NSPipe pipe];
 
       if (fork()) { // parent
         int status;        
         wait(&status);
+
+        NSLog(@"Finished with status %d", status);
 
         if (status != 0) {
           passed = false;
@@ -287,6 +290,7 @@ unsigned int RunTests(id klass) {
         InstallSignalHandlers();
       }
     }
+
     if (![instance shouldFork] || isChild) {
       @try {
         method_getImplementation(m)(klass, m_desc->name);
@@ -306,8 +310,14 @@ unsigned int RunTests(id klass) {
         data = [message dataUsingEncoding:NSUTF8StringEncoding];
         [[exceptionPipe fileHandleForWriting] writeData: data];
       }
-      if ([instance shouldFork]) {
-        exit((passed) ? 0 : 1);
+    }
+
+    if ([instance shouldFork]) {
+      if (isChild) exit((passed) ? 0 : 1);
+    } else {
+      if (!passed) {
+        NSData *data = [[exceptionPipe fileHandleForReading] availableData];
+        failureMessage = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
       }
     }
 
@@ -333,9 +343,7 @@ unsigned int RunTests(id klass) {
 int main() {
   NSAutoreleasePool *pool = [NSAutoreleasePool new];
 
-#ifndef FORK_TESTS
   InstallSignalHandlers();
-#endif
 
   failingTests = [NSMutableArray new];
   NSArray *classes = ClassGetSubclasses([TestSuite class]);

@@ -8,6 +8,7 @@ TEST(LocalStorageIsPersisted)
   // NSApplication *app = [NSApplication sharedApplication];
 
   // ScribeWindow *win = [ScribeWindow new];
+  // [win makeKeyAndOrderFront: nil];
   // WebScriptObject *script = [win.webView windowScriptObject];
   // [script evaluateWebScript: @"window.localStorage.x = '1';"];
   // [win release];
