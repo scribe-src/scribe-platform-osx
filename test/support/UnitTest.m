@@ -4,6 +4,12 @@
 // Unit test helpers
 //
 
+unsigned int testsRan = 0;
+unsigned int testsPassed = 0;
+NSPipe *exceptionPipe;
+NSMutableArray *failingTests;
+
+
 void Assert(int conditional) {
   if (!conditional) {
     [NSException raise:@"False Assertion" format:@"Expected true.", nil];
@@ -129,10 +135,6 @@ void AssertInstanceOfClass(id instance, Class klass) {
 - (BOOL) shouldFork { return YES; }
 @end
 
-unsigned int testsRan = 0;
-unsigned int testsPassed = 0;
-NSPipe *exceptionPipe;
-NSMutableArray *failingTests;
 
 NSArray *ClassGetSubclasses(Class parentClass) {
   int numClasses = objc_getClassList(NULL, 0);
@@ -174,6 +176,25 @@ void PrintBad(NSString *msg) {
 
 void Print(NSString *msg) {
   printf("%s", msg.UTF8String);
+}
+
+void ReportSpecSuccess(NSString *name) {
+  testsRan++;
+  testsPassed++;
+  Print(@"\n    Running ");
+  PrintBold(name);
+  Print(@"...");
+  PrintGood(@"\xE2\x9C\x93");
+}
+
+void ReportSpecFailure(NSString *name, NSString *details) {
+  testsRan++;
+  Print(@"\n    Running ");
+  PrintBold(name);
+  Print(@"...");
+  PrintBad(@"X\n    ");
+  PrintBad(@"Test failed: ");
+  PrintBad(details);
 }
 
 void ReportException(NSString *exception) {
@@ -322,6 +343,7 @@ unsigned int RunTests(id klass) {
     if (passed) {
       numPassed++;
       testsPassed++;
+
       PrintGood(@"\xE2\x9C\x93");
     } else {
       PrintBad(@"X\n    ");

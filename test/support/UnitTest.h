@@ -70,6 +70,14 @@ void AssertStrNotEqual(void* a, void* b);
 void AssertObjNotEqual(id a, id b);
 void AssertInstanceOfClass(id instance, Class klass);
 
+void PrintGood(NSString *msg);
+void PrintBold(NSString *msg);
+void PrintBad(NSString *msg);
+void Print(NSString *msg);
+
+void ReportSpecSuccess(NSString *name);
+void ReportSpecFailure(NSString *name, NSString *details);
+
 @interface TestSuite: NSObject
 - (void) suiteInitialize;
 - (BOOL) shouldFork;

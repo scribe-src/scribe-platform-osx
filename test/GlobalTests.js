@@ -6,6 +6,6 @@ if (!scribe.engine) {
   throw new Error("scribe.engine global is not defined.");
 }
 
-if (!OSX.ScribeWindoW) {
-  throw new Error("ScribeWindow global is not defined.");
+if (!OSX) {
+  throw new Error("OSX global is not defined.");
 }

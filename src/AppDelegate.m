@@ -152,7 +152,7 @@
   NSFileManager *fileManager = [NSFileManager defaultManager];
   NSString *cwd = [fileManager currentDirectoryPath];
   NSString *app = [cwd stringByDeletingLastPathComponent];
-  [app stringByAppendingPathComponent: @"Resources"];
+  return [app stringByAppendingPathComponent: @"Resources"];
 }
 
 // The baseURL for webView SOP (defaults to file:// path)

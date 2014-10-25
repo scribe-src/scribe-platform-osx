@@ -15,7 +15,6 @@ void runJSTest() {
                     encoding: NSUTF8StringEncoding
                        error: nil];
 
-  js = [NSString stringWithFormat: @"try { %@ } catch(e){this.ERROR=e}", js];
   [jsTests removeLastObject];
 
   JSVirtualMachine *vm = [[JSVirtualMachine new] autorelease];
@@ -23,16 +22,38 @@ void runJSTest() {
   
   ScribeEngine *scribeEngine = [ScribeEngine inject: context];
 
-  // [context evaluateScript: @"window.ERROR=1;"];
+  NSString *helpersjs = [NSString
+    stringWithContentsOfFile: @"./test/support/TestHelpers.js"
+                    encoding: NSUTF8StringEncoding
+                       error: nil];
+  [scribeEngine.jsCocoa evalJSString: helpersjs];
+
+  js = [NSString stringWithFormat: @"try{%@}catch(e){this.ERROR=e}", js];
   [scribeEngine.jsCocoa evalJSString: js];
   JSValue *err = context[@"ERROR"];
-
-  if ([err isUndefined] || [err isNull]) {
-    Assert(true);
-  } else {
-    [NSException raise: @"False Assertion" format: @"%@\n%@", [err[@"message"] toString], [err[@"stack"] toString], nil];
+  if (!([err isUndefined] || [err isNull])) {
+    [NSException raise: @"Error loading JS file" format:@"%@\n%@",
+      [err[@"message"] toString], [err[@"stack"] toString]];
   }
 
+  BOOL passed = true;
+  while ([context[@"UnitTest"][@"hasNext"] toBool]) {
+    NSString *specName = [context[@"UnitTest"][@"nextName"] toString];
+    [scribeEngine.jsCocoa evalJSString: @"UnitTest.runTest()"];
+
+    // [context evaluateScript: @"window.ERROR=1;"];
+    JSValue *err = context[@"ERROR"];
+    if ([err isUndefined] || [err isNull]) {
+      ReportSpecSuccess(specName);
+    } else {
+      passed = false;
+      NSString *errStr = [NSString stringWithFormat: @"%@\n%@",
+        [err[@"message"] toString], [err[@"stack"] toString]];
+      ReportSpecFailure(specName, errStr);
+    }
+  }
+
+  Assert(true);
 }
 
 TEST_SUITE(JSTests)
