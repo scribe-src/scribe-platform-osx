@@ -3,7 +3,7 @@
 #import <AppKit/AppKit.h>
 #import "ScribeEngine.h"
 
-@interface ScribeWindow: NSWindow {
+@interface ScribeWindow: NSWindow <NSWindowDelegate> {
   WebView *webView;
   ScribeEngine *scribeEngine;
 }

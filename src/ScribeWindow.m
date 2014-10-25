@@ -5,15 +5,18 @@
 @synthesize webView, scribeEngine;
 
 - (id)initWithContentRect: (NSRect) contentRect
-                          styleMask: (NSUInteger) windowStyle
-                            backing: (NSBackingStoreType) bufferingType
-                              defer: (BOOL) deferCreation {
+                styleMask: (NSUInteger) windowStyle
+                  backing: (NSBackingStoreType) bufferingType
+                    defer: (BOOL) deferCreation {
+
   if (self = [super initWithContentRect: contentRect
                               styleMask: windowStyle
                                 backing: bufferingType
                                   defer: deferCreation]) {
+    self.delegate = self;
     [self buildWebView];
   }
+
   return self;
 }
 
@@ -33,7 +36,8 @@
                                  frameName: @"scribe"
                                  groupName: nil];
   webView.frameLoadDelegate = self;
-  // [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"WebKitDeveloperExtras"];
+  webView.UIDelegate = self;
+  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"WebKitDeveloperExtras"];
 
   WebPreferences* prefs = [webView preferences];
   [prefs _setLocalStorageDatabasePath: @"~/Library/Application Support/MyApp"];
@@ -49,25 +53,76 @@
   [[webView mainFrame] loadRequest: request];
 }
 
+//
+// WebFrameDelegate methods
+//
+
+-(NSArray *) webView: (WebView *) sender
+    contextMenuItemsForElement: (NSDictionary *) element
+    defaultMenuItems: (NSArray *) defaultMenuItems {
+
+    if ([defaultMenuItems count] == 1) {
+      // remove the default "Reload option"
+      return nil;
+    } else {
+      // keep the debug menu available
+      return @[[defaultMenuItems lastObject]];
+    }
+}
+
 // Add injection hook for injecting ScribeEngine scribe global
-- (void)webView: (WebView *) webView
-        didCreateJavaScriptContext: (JSContext *) context
-        forFrame: (WebFrame *) frame {
+- (void) webView: (WebView *) webView
+         didCreateJavaScriptContext: (JSContext *) context
+         forFrame: (WebFrame *) frame {
   ScribeEngine *engine = [ScribeEngine inject: context];
   if (frame == [webView mainFrame]) {
     self.scribeEngine = engine;
   }
 }
 
+//
+// NSWindowDelegate methods
+//
+
+- (void) windowDidMiniaturize: (NSNotification *) notification {
+  [scribeEngine.context evaluateScript: 
+    @"Scribe.Window.currentWindow().trigger('minimize');"
+  ];
+}
+
+- (void) windowDidResize: (NSNotification *) notification {
+  [scribeEngine.context evaluateScript: 
+    @"Scribe.Window.currentWindow().trigger('resize');"
+  ];
+}
+
+- (void) windowDidMove: (NSNotification *) notification {
+  [scribeEngine.context evaluateScript: 
+    @"Scribe.Window.currentWindow().trigger('move');"
+  ];
+}
+
+- (void) windowDidEnterFullScreen: (NSNotification *) notification {
+  [scribeEngine.context evaluateScript: 
+    @"Scribe.Window.currentWindow().trigger('fullscreen');"
+  ];
+}
+
+
+
 // - (void)webView: (WebView *) sender
 //         didClearWindowObject: (WebScriptObject *) windowObject
 //         forFrame: (WebFrame *) frame {
-//   ScribeEngine *engine = [ScribeEngine inject: mainFrame];
+//   ScribeEngine *engine = [ScribeEngine inject: [frame globalContext]];
 //   if (frame == [webView mainFrame]) {
 //     self.scribeEngine = engine;
 //   }
 // }
 
+- (void) dealloc {
+  [webView release], webView = nil;
+  [scribeEngine release], scribeEngine = nil;
+  [super dealloc];
+}
+
 @end
-
-
