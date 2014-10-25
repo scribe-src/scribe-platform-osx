@@ -23,13 +23,14 @@ OUT_FILE=$(OUT_DIR)/Scribe
 OUT_TEST=build/run-tests
 
 # Needed for linking
+ADD_DATA = -sectcreate __DATA __windowjs ../scribe-api/dist/dist.js
 FRAMEWORKS=-framework Cocoa -framework WebKit \
            -framework JavaScriptCore -framework AppKit
 
 # Include all src files except src/main.m in the test suite
 M_FILES = $(wildcard src/*.m)
 SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) $(ENGINE_SRC)/**.m
-CFLAGS=-O3 -lobjc -lffi -arch x86_64 $(FRAMEWORKS)
+CFLAGS=-O1 -lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE $(ADD_DATA)
 
 # Ensure that the `test` and `clean` targets always get run
 .PHONY: test clean
@@ -37,7 +38,7 @@ CFLAGS=-O3 -lobjc -lffi -arch x86_64 $(FRAMEWORKS)
 all:
 	mkdir -p $(OUT_DIR)
 	$(CC) $(CFLAGS) -I$(ENGINE_SRC) -flat_namespace \
-		$(SRC_FILES) -o $(OUT_FILE)
+		$(SRC_FILES) -o $(OUT_FILE) $(ADD_DATA)
 	cp -R $(RES_DIR)/ $(APP_DIR)/
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_FILE)\n"
 
