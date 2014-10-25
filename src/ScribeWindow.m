@@ -37,11 +37,34 @@
                                  groupName: nil];
   webView.frameLoadDelegate = self;
   webView.UIDelegate = self;
-  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"WebKitDeveloperExtras"];
 
-  WebPreferences* prefs = [webView preferences];
-  [prefs _setLocalStorageDatabasePath: @"~/Library/Application Support/MyApp"];
-  [prefs setLocalStorageEnabled:YES];
+  WebPreferences *prefs = [webView preferences];
+  [prefs setAutosaves:YES];
+
+  static const unsigned long long defaultTotalQuota = 1024 * 1024 * 1024 * 10; // 10GB
+  static const unsigned long long defaultOriginQuota = 1024 * 1024 * 1024 * 10; // 10GB
+
+  [prefs setApplicationCacheTotalQuota: defaultTotalQuota];
+  [prefs setApplicationCacheDefaultOriginQuota: defaultOriginQuota];
+
+  [prefs setWebGLEnabled: YES];
+  [prefs setWebAudioEnabled: YES];
+  [prefs setOfflineWebApplicationCacheEnabled: YES];
+  [prefs setAVFoundationEnabled: YES];
+  [prefs setDatabasesEnabled: YES];
+  [prefs setDeveloperExtrasEnabled: YES];
+  [prefs setWebSecurityEnabled: NO];
+  [prefs setJavaScriptCanAccessClipboard: YES];
+  [prefs setNotificationsEnabled: YES];
+
+  NSString *app = [[[NSBundle mainBundle] localizedInfoDictionary]
+    objectForKey:@"CFBundleName"];
+
+  if (!app) app = @"Scribe";
+
+  [prefs setLocalStorageEnabled: YES];
+  [prefs _setLocalStorageDatabasePath:
+    [NSString stringWithFormat: @"~/Library/Application Support/%@", app]];
 
   [self setContentView: webView];
 }

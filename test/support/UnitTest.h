@@ -27,7 +27,13 @@
 // Test definition macros
 //
 
-#define TEST_SUITE(name) @interface name: UnitTest\
+// We disable forking during the tests, since the NSBundle API
+// does not seem to like it when you fork and then try to access
+// [[NSBundle mainBundle] pathForResource:ofType:];
+
+// #define FORK_TESTS 1
+
+#define TEST_SUITE(name) @interface name: TestSuite\
                          @end\
                          @implementation name
 
@@ -37,7 +43,11 @@
 
 #define END_TEST }
 
-#define FORK_TESTS 1
+#define SUITE_INIT - (void) suiteInitialize {
+
+#define END_SUITE_INIT }
+
+#define FORK(B) - (BOOL) shouldFork { return B; }
 
 //
 // Test assertion helpers. These throw a helpful exception
@@ -60,5 +70,7 @@ void AssertStrNotEqual(void* a, void* b);
 void AssertObjNotEqual(id a, id b);
 void AssertInstanceOfClass(id instance, Class klass);
 
-@interface UnitTest: NSObject
+@interface TestSuite: NSObject
+- (void) suiteInitialize;
+- (BOOL) shouldFork;
 @end

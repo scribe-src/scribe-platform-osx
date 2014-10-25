@@ -124,7 +124,9 @@ void AssertInstanceOfClass(id instance, Class klass) {
 // Unit test management/running procedures
 //
 
-@implementation UnitTest
+@implementation TestSuite
+- (void) suiteInitialize {}
+- (BOOL) shouldFork { return NO; }
 @end
 
 unsigned int testsRan = 0;
@@ -241,6 +243,14 @@ void InstallSignalHandlers() {
 }
 
 unsigned int RunTests(id klass) {
+  // keep an anonymous instance so we can access instance methods,
+  // which prevents the need from filtering out class methods that
+  // are not tests
+  TestSuite *instance = (TestSuite *)[[klass new] autorelease];
+
+  // do any test-suite-level setup
+  [instance suiteInitialize];
+
   unsigned int numMethods = 0;
   unsigned int numPassed  = 0;
   Method *methods = class_copyMethodList(object_getClass(klass), &numMethods);
@@ -248,6 +258,7 @@ unsigned int RunTests(id klass) {
   for (unsigned int i = 0; i < numMethods; i++) {
     Method m = methods[i];
     struct objc_method_description *m_desc = method_getDescription(m);
+
     Print(@"  Running ");
     PrintBold(NSStringFromSelector(m_desc->name));
     Print(@"... ");
@@ -258,23 +269,25 @@ unsigned int RunTests(id klass) {
     NSString *failureMessage = nil;
     testsRan++;
 
-#ifdef FORK_TESTS
-    exceptionPipe = [NSPipe pipe];
+    BOOL isChild = NO;
+    if ([instance shouldFork]) {
+      exceptionPipe = [NSPipe pipe];
 
-    if (fork()) { // parent
-      int status;
-      wait(&status);
+      if (fork()) { // parent
+        int status;        
+        wait(&status);
 
-      if (status != 0) {
-        passed = false;
-        NSData *data = [[exceptionPipe fileHandleForReading] availableData];
-        failureMessage = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+        if (status != 0) {
+          passed = false;
+          NSData *data = [[exceptionPipe fileHandleForReading] availableData];
+          failureMessage = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+        }
+      } else {
+        isChild = YES;
+        InstallSignalHandlers();
       }
-    } else {
-      InstallSignalHandlers();
-#else
-    {
-#endif
+    }
+    if (![instance shouldFork] || isChild) {
       @try {
         method_getImplementation(m)(klass, m_desc->name);
       } @catch (NSException *e) {
@@ -293,9 +306,9 @@ unsigned int RunTests(id klass) {
         data = [message dataUsingEncoding:NSUTF8StringEncoding];
         [[exceptionPipe fileHandleForWriting] writeData: data];
       }
-#ifdef FORK_TESTS
-      exit((passed) ? 0 : 1);
-#endif
+      if ([instance shouldFork]) {
+        exit((passed) ? 0 : 1);
+      }
     }
 
     if (passed) {
@@ -325,7 +338,7 @@ int main() {
 #endif
 
   failingTests = [NSMutableArray new];
-  NSArray *classes = ClassGetSubclasses([UnitTest class]);
+  NSArray *classes = ClassGetSubclasses([TestSuite class]);
   for (id klass in classes) {
     Print(@"\nRunning test suite ");
     PrintBold(NSStringFromClass(klass));

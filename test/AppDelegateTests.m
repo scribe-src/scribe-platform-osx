@@ -4,6 +4,8 @@
 
 TEST_SUITE(AppDelegateTests)
 
+FORK(NO)
+
 TEST(MissingPlistFile)
   @try {
     AppDelegate *appDelegate = [[AppDelegate new] autorelease];

@@ -132,35 +132,33 @@
 - (NSString *) pathForResource: (NSString *)filename
                         ofType: (NSString *)type {
   NSBundle *bundle = [NSBundle mainBundle];
-  NSString *plistPath = nil;
+  NSString *finalPath = nil;
 
   if (bundle) {
-    plistPath = [bundle pathForResource: filename ofType: type];
+    finalPath = [bundle pathForResource: filename ofType: type];
   }
 
-  if (!plistPath) {
+  if (!finalPath) {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *cwd = [fileManager currentDirectoryPath];
-    NSMutableString *cwdMutable = [NSMutableString stringWithString: cwd];
-    
-    if (![cwdMutable hasSuffix: @"/"]) {
-      [cwdMutable appendString: @"/"];
-    }
-
-    [cwdMutable appendFormat: @"%@.%@", filename, type];
-    plistPath = cwdMutable;
+    NSString *file = [NSString stringWithFormat: @"%@.%@", filename, type];
+    finalPath = [cwd stringByAppendingPathComponent: file];
   }
 
-  return plistPath;
+  return finalPath;
+}
+
+- (NSString *)resourcesDir {
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSString *cwd = [fileManager currentDirectoryPath];
+  NSString *app = [cwd stringByDeletingLastPathComponent];
+  [app stringByAppendingPathComponent: @"Resources"];
 }
 
 // The baseURL for webView SOP (defaults to file:// path)
 - (NSURL *)baseURL {
-  NSString *exe = [[[NSProcessInfo processInfo] arguments] objectAtIndex: 0];
-  NSString *cwd = [exe stringByDeletingLastPathComponent];
-  NSString *contents = [cwd stringByDeletingLastPathComponent];
   return [NSURL URLWithString:
-    [NSString stringWithFormat: @"file://%@/Resources/", contents]
+    [NSString stringWithFormat: @"file://%@/Resources/", [self resourcesDir]]
   ];
 }
 
