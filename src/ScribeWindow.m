@@ -54,7 +54,7 @@
 }
 
 //
-// WebFrameDelegate methods
+// WebUIDelegate methods
 //
 
 -(NSArray *) webView: (WebView *) sender
@@ -70,11 +70,26 @@
     }
 }
 
+//
+// WebFrameDelegate methods
+//
+
 // Add injection hook for injecting ScribeEngine scribe global
 - (void) webView: (WebView *) webView
          didCreateJavaScriptContext: (JSContext *) context
          forFrame: (WebFrame *) frame {
+
+  // Inject JSCocoa runtime into the WebView's JS context, along
+  // with the universal bits of the Scribe.* namespace.
   ScribeEngine *engine = [ScribeEngine inject: context];
+
+  // ensure the code running in this window gets the correct result
+  // from Scribe.Window.currentWindow();
+  context[@"Scribe"][@"_currentNativeWindow"] = self;
+
+  // Inject the OSX-specific bits of the Scribe.* APIs
+
+  // save the ScribeEngine in an ivar if this is the top frame
   if (frame == [webView mainFrame]) {
     self.scribeEngine = engine;
   }
