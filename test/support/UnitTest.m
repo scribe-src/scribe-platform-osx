@@ -278,8 +278,6 @@ unsigned int RunTests(id klass) {
         int status;        
         wait(&status);
 
-        NSLog(@"Finished with status %d", status);
-
         if (status != 0) {
           passed = false;
           NSData *data = [[exceptionPipe fileHandleForReading] availableData];

@@ -28,12 +28,7 @@ void runJSTest() {
   JSValue *err = context[@"ERROR"];
 
   if ([err isUndefined] || [err isNull]) {
-    JSValue *asserted = context[@"ASSERT"];
-    if ([asserted isTrue]) {
-      Assert(true);
-    } else {
-      [NSException raise: @"JS assertion failed" format: @"Error raised in JS.", nil];
-    }
+    Assert(true);
   } else {
     [NSException raise: @"False Assertion" format: @"%@\n%@", [err[@"message"] toString], [err[@"stack"] toString], nil];
   }
