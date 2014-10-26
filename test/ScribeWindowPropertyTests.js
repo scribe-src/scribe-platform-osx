@@ -1,3 +1,8 @@
+// TODO:
+// This should have been written in Jasmine, so that I can
+// reuse them across projects without having to re-port the
+// test harness.
+
 function buildWindow(opts) {
   var defaults = {
     center: true,
@@ -150,6 +155,7 @@ UnitTest("visible is true after calling show() then hide() then show()", functio
   Assert(visible);
 });
 
+// the following test will cause annoying window rearrangement in OSX:
 // UnitTest("fullscreen is true after setting win.fullscreen=true;", function(){
 //   var win = buildWindow({fullscreen: false});
 //   var width = win.width;
@@ -162,7 +168,6 @@ UnitTest("visible is true after calling show() then hide() then show()", functio
 //   // AssertNotEqual(win.width, width);
 //   // AssertNotEqual(win.height, height);
 //   Assert(fullscreen);
-  
 // });
 
 UnitTest("fullscreen is false after setting win.fullscreen=true;", function(){
@@ -174,9 +179,6 @@ UnitTest("fullscreen is false after setting win.fullscreen=true;", function(){
   win.fullscreen = false;
   var fullscreen = win.fullscreen;
   win.close();
-  // PENDING: must tick run loop for the animation to finish here
-  // AssertNotEqual(win.width, width);
-  // AssertNotEqual(win.height, height);
   AssertFalse(fullscreen);
   
 });
@@ -233,16 +235,11 @@ UnitTest("sameOriginPolicy is false when specified in the constructor;", functio
   AssertFalse(sameOriginPolicy);
 });
 
-UnitTest("trying to set sameOriginPolicy throws an error", function(){
+UnitTest("setting sameOriginPolicy to true works as expected", function(){
   var win = buildWindow({sameOriginPolicy: false});
   win.show();
-  try {
-    win.sameOriginPolicy = true;
-  } catch (e) {
-    if (e.message.match(/sameOriginPolicy/))
-      return;
-  } finally {
-    win.close();
-  }
-  Assert(false);
+  win.sameOriginPolicy = true;
+  var sop = win.sameOriginPolicy;
+  win.close();
+  Assert(sop);
 });

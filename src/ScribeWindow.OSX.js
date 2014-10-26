@@ -28,6 +28,7 @@ Scribe.Window.prototype._createWindow = function(opts) {
     false
   );
 
+  // configure some settings in the ScribeWindow's WebView
   if (opts.sameOriginPolicy == null) opts.sameOriginPolicy = true;
   this.nativeWindowObject.webView.preferences.setWebSecurityEnabled(
     opts.sameOriginPolicy
@@ -169,10 +170,10 @@ Scribe.Window.prototype._setClosable = function(closable) {
 }
 
 Scribe.Window.prototype._getSameOriginPolicy = function() {
-  return this.nativeWindowObject.webView.preferences.webSecurityEnabled;
+  return this.nativeWindowObject.webView.preferences.isWebSecurityEnabled;
 }
 
 Scribe.Window.prototype._setSameOriginPolicy = function(sop) {
-  throw new Error("Cannot set the sameOriginPolicy property.");
+  this.nativeWindowObject.webView.preferences.setWebSecurityEnabled(sop);
 }
 
