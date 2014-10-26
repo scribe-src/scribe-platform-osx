@@ -159,7 +159,7 @@
 // The baseURL for webView SOP (defaults to file:// path)
 - (NSURL *)baseURL {
   return [NSURL URLWithString:
-    [NSString stringWithFormat: @"file://%@/Resources/", [self resourcesDir]]
+    [self pathForResource: @"index" ofType: @"html"]
   ];
 }
 

@@ -23,7 +23,9 @@ OUT_FILE=$(OUT_DIR)/Scribe
 OUT_TEST=build/run-tests
 
 # Needed for linking
-ADD_DATA = -sectcreate __DATA __windowjs ../scribe-api/dist/dist.js
+ADD_DATA = -sectcreate __DATA __windowjs ../scribe-api/dist/dist.js \
+  -sectcreate __DATA __osxjs ./src/ScribeWindow.OSX.js
+
 FRAMEWORKS=-framework Cocoa -framework WebKit \
            -framework JavaScriptCore -framework AppKit
 

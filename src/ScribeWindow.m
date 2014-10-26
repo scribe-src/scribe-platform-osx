@@ -1,5 +1,10 @@
 #import "ScribeWindow.h"
 
+
+// Abuse the Darwin linker to get a handle to the START of the
+// windowjs linker section. This way we can shove data in with `ld`
+extern int osxStart __asm("section$start$__DATA$__osxjs");
+
 @implementation ScribeWindow
 
 @synthesize webView, scribeEngine;
@@ -109,6 +114,11 @@
   // ensure the code running in this window gets the correct result
   // from Scribe.Window.currentWindow();
   context[@"Scribe"][@"_currentNativeWindow"] = self;
+
+  if (osxStart) {
+    NSString *js = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
+    [engine.jsCocoa evalJSString: js];
+  }
 
   // Inject the OSX-specific bits of the Scribe.* APIs
 

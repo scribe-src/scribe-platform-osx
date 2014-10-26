@@ -41,7 +41,6 @@ void runJSTest() {
     NSString *specName = [context[@"UnitTest"][@"nextName"] toString];
     [scribeEngine.jsCocoa evalJSString: @"UnitTest.runTest()"];
 
-    // [context evaluateScript: @"window.ERROR=1;"];
     JSValue *err = context[@"ERROR"];
     if ([err isUndefined] || [err isNull]) {
       ReportSpecSuccess(specName);
