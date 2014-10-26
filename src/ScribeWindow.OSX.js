@@ -21,13 +21,17 @@ Scribe.Window.prototype._createWindow = function(opts) {
   if (opts.fullscreen) styleMask |= OSX.NSFullScreenWindowMask;
 
   // create the nativeWindowObject
-  scribe.log(opts.chrome);
   this._nativeWindowObject = OSX.ScribeWindow.alloc['initWithContentRect:styleMask:backing:defer:'](
     rect,
     styleMask,
     OSX.NSBackingStoreBuffered,
     false
-  );  
+  );
+
+  if (opts.sameOriginPolicy == null) opts.sameOriginPolicy = true;
+  this.nativeWindowObject.webView.preferences.setWebSecurityEnabled(
+    opts.sameOriginPolicy
+  );
 }
 
 Scribe.Window.prototype._center = function() {
@@ -129,9 +133,46 @@ Scribe.Window.prototype._getFullscreen = function() {
   return ((this.nativeWindowObject.styleMask & OSX.NSFullScreenWindowMask) != 0);
 }
 
-Scribe.Window.prototype._setFullscreen = function(fs) {
+Scribe.Window.prototype._setFullscreen = function(fullscreen) {
   this.nativeWindowObject.setCollectionBehavior(OSX.NSWindowCollectionBehaviorFullScreenPrimary);
-  if (this.fullscreen != fs) {
+  if (this.fullscreen != fullscreen) {
     this.nativeWindowObject.toggleFullScreen(this.nativeWindowObject);
   }
 }
+
+Scribe.Window.prototype._getResizable = function() {
+  return ((this.nativeWindowObject.styleMask & OSX.NSResizableWindowMask) != 0);
+}
+
+Scribe.Window.prototype._setResizable = function(resizable) {
+  var newMask;
+  if (resizable){
+    var newMask = this.nativeWindowObject.styleMask | OSX.NSResizableWindowMask;
+  } else {
+    var newMask = this.nativeWindowObject.styleMask & ~OSX.NSResizableWindowMask;
+  }
+  this.nativeWindowObject.setStyleMask(newMask);
+}
+
+Scribe.Window.prototype._getClosable = function() {
+  return ((this.nativeWindowObject.styleMask & OSX.NSClosableWindowMask) != 0);
+}
+
+Scribe.Window.prototype._setClosable = function(closable) {
+  var newMask;
+  if (closable){
+    var newMask = this.nativeWindowObject.styleMask | OSX.NSClosableWindowMask;
+  } else {
+    var newMask = this.nativeWindowObject.styleMask & ~OSX.NSClosableWindowMask;
+  }
+  this.nativeWindowObject.setStyleMask(newMask);
+}
+
+Scribe.Window.prototype._getSameOriginPolicy = function() {
+  return this.nativeWindowObject.webView.preferences.webSecurityEnabled;
+}
+
+Scribe.Window.prototype._setSameOriginPolicy = function(sop) {
+  throw new Error("Cannot set the sameOriginPolicy property.");
+}
+

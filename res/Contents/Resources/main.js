@@ -5,9 +5,10 @@ var win = Scribe.Window.create({
   width: 500,
   height: 500,
   chrome: true,
-  closable: true,
-  resizable: true
+  closable: false,
+  resizable: false
 });
+
 win.show();
 win.center();
 win.navigateToURL('index.html');
