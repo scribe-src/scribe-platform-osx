@@ -8,7 +8,7 @@ int main(int argc, char * argv[]) {
   [app setActivationPolicy: NSApplicationActivationPolicyRegular];
 
   AppDelegate *appDelegate =  [[AppDelegate new] autorelease];
-  [app setDelegate:appDelegate];
+  [app setDelegate: appDelegate];
 
   [app run];
 

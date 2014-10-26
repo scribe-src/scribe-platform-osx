@@ -9,15 +9,12 @@ function O2S(obj) {
     return "true";
   if (obj === false)
     return "false";
-  if (obj)
-    return "[Object truthy]";
-
-  return "[Object falsey]";
+  return obj+"";
 }
 
 function Assert(x) {
   if (!x)
-    throw new Error("Expected "+O2S(str)+" to be truthy.")
+    throw new Error("Expected "+O2S(x)+" to be truthy.")
 }
 
 function AssertLooseEqual(x, y) {
@@ -32,7 +29,7 @@ function AssertEqual(x, y) {
 
 function AssertFalse(x) {
   if (x)
-    throw new Error("Expected "+O2S(str)+" to be falsey.")
+    throw new Error("Expected "+O2S(x)+" to be falsey.")
 }
 
 function AssertLooseNotEqual(x, y) {

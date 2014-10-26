@@ -1,51 +1,137 @@
+Scribe.Window.prototype._isVisible = false;
+
 Scribe.Window.prototype._createWindow = function(opts) {
-  // var frame = {x: 0, y: 0, width: 800, height: 800};
-  // frame.x = opts.x || frame.x;
-  // frame.y = opts.y || frame.y;
-  // frame.top = opts.top || frame.top;
-  // frame.left = opts.left || frame.left;
+  // Build the NSRect that will contain this window
+  var frame = {x: 0, y: 0, width: 800, height: 800};
+  frame.x = opts.left || frame.x;
+  frame.y = opts.top || frame.y;
+  frame.width = opts.width || frame.width;
+  frame.height = opts.height || frame.height;
+  var rect = OSX.NSMakeRect(frame.x, frame.y, frame.width, frame.height);
 
-  // this._nativeWindowObject = new OSX.ScribeWindow.alloc.initWithFrame(
-  //   OSX.CGRectMake(frame.x, frame.y, frame.width, frame.height)
-  // );
+  // apply some window-mask flags from options
+  if (opts.chrome == null)   opts.chrome = true;
+  if (opts.resizable == null) opts.resizable = true;
+  if (opts.fullscreen == null) opts.fullscreen = false;
+
+  var styleMask = 0;
+  if (opts.chrome)     styleMask |= OSX.NSTitledWindowMask;
+  if (opts.resizable)  styleMask |= OSX.NSResizableWindowMask;
+  if (opts.closable)   styleMask |= OSX.NSClosableWindowMask;
+  if (opts.fullscreen) styleMask |= OSX.NSFullScreenWindowMask;
+
+  // create the nativeWindowObject
+  scribe.log(opts.chrome);
+  this._nativeWindowObject = OSX.ScribeWindow.alloc['initWithContentRect:styleMask:backing:defer:'](
+    rect,
+    styleMask,
+    OSX.NSBackingStoreBuffered,
+    false
+  );  
 }
 
-Scribe.Window.prototype.destroy = function() {
-  
+Scribe.Window.prototype._center = function() {
+  this.nativeWindowObject.center;
 }
 
-Scribe.Window.prototype._getX = function() {
-  return 0;
+Scribe.Window.prototype._show = function() {
+  this.nativeWindowObject.makeKeyAndOrderFront(null);
+  this._isVisible = true;
 }
 
-Scribe.Window.prototype._setX = function(x) {
-  return 0;
+Scribe.Window.prototype._hide = function() {
+  this.nativeWindowObject.hide;
+  this._isVisible = false;
 }
 
-Scribe.Window.prototype._getY = function() {
-  return 0;
+Scribe.Window.prototype._close = function() {
+  this.nativeWindowObject.close;
+  this._isVisible = false;
 }
 
-Scribe.Window.prototype._setY = function(y) {
-  return 0;
+Scribe.Window.prototype._getVisible = function() {
+  return this._isVisible;
+}
+
+Scribe.Window.prototype._navigateToURL = function(URL) {
+  this.nativeWindowObject.navigateToURL(URL);
 }
 
 Scribe.Window.prototype._getNativeWindowObject = function() {
-  return 0;
+  return this._nativeWindowObject;
 }
 
-Scribe.Window.prototype._getWidth = function(width) {
-  return 0;
+Scribe.Window.prototype._getLeft = function() {
+  return this.nativeWindowObject.frame.origin.x;
+}
+
+Scribe.Window.prototype._setLeft = function(x) {
+  var frame = this.nativeWindowObject.frame;
+  var rect = OSX.NSMakeRect(
+    x,
+    frame.origin.y,
+    frame.size.width,
+    frame.size.height
+  );
+
+  this.nativeWindowObject['setFrame:display:'](rect, true);
+}
+
+Scribe.Window.prototype._getTop = function() {
+  return this.nativeWindowObject.frame.origin.y;
+}
+
+Scribe.Window.prototype._setTop = function(y) {
+  var frame = this.nativeWindowObject.frame;
+  var rect = OSX.NSMakeRect(
+    frame.origin.x,
+    y,
+    frame.size.width,
+    frame.size.height
+  );
+
+  this.nativeWindowObject['setFrame:display:'](rect, true);
+}
+
+Scribe.Window.prototype._getWidth = function() {
+  return this.nativeWindowObject.frame.size.width;
 }
 
 Scribe.Window.prototype._setWidth = function(width) {
-  return 0;
+  var frame = this.nativeWindowObject.frame;
+  var rect = OSX.NSMakeRect(
+    frame.origin.x,
+    frame.origin.y,
+    width,
+    frame.size.height
+  );
+
+  this.nativeWindowObject['setFrame:display:'](rect, true);
+}
+
+Scribe.Window.prototype._getHeight = function() {
+  return this.nativeWindowObject.frame.size.height;
 }
 
 Scribe.Window.prototype._setHeight = function(height) {
-  return 0;
+  var frame = this.nativeWindowObject.frame;
+  var rect = OSX.NSMakeRect(
+    frame.origin.x,
+    frame.origin.y,
+    frame.size.width,
+    height
+  );
+
+  this.nativeWindowObject['setFrame:display:'](rect, true);
 }
 
-Scribe.Window.prototype._getHeight = function(height) {
-  return 0;
+Scribe.Window.prototype._getFullscreen = function() {
+  return ((this.nativeWindowObject.styleMask & OSX.NSFullScreenWindowMask) != 0);
+}
+
+Scribe.Window.prototype._setFullscreen = function(fs) {
+  this.nativeWindowObject.setCollectionBehavior(OSX.NSWindowCollectionBehaviorFullScreenPrimary);
+  if (this.fullscreen != fs) {
+    this.nativeWindowObject.toggleFullScreen(this.nativeWindowObject);
+  }
 }

@@ -5,6 +5,7 @@
 #import <JavascriptCore/JavascriptCore.h>
 
 NSMutableArray *jsTests = nil;
+// extern int osxStart __asm("section$start$__DATA$__osxjs");
 
 void runJSTest() {
   NSString *path = [jsTests lastObject];
@@ -21,6 +22,11 @@ void runJSTest() {
   JSContext *context = [[[JSContext alloc] initWithVirtualMachine: vm] autorelease];
   
   ScribeEngine *scribeEngine = [ScribeEngine inject: context];
+
+  // if (osxStart) {
+  //   NSString *jsOSX = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
+  //   [scribeEngine.jsCocoa evalJSString: jsOSX];
+  // }
 
   NSString *helpersjs = [NSString
     stringWithContentsOfFile: @"./test/support/TestHelpers.js"

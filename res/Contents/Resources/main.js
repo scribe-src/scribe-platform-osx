@@ -1,15 +1,15 @@
 // Create a window to contain our application
-var win = OSX.ScribeWindow.alloc['initWithContentRect:styleMask:backing:defer:'](
-  OSX.CGRectMake(0, 0, 800, 500),
-  OSX.NSTitledWindowMask | OSX.NSClosableWindowMask | OSX.NSResizableWindowMask,
-  OSX.NSBackingStoreBuffered,
-  false
-);
-win.makeKeyAndOrderFront(null);
-win.title = 'My Window';
-
-// Load our HTML into the new Window
-win.center;
+var win = Scribe.Window.create({
+  top: 100,
+  left: 100,
+  width: 500,
+  height: 500,
+  chrome: true,
+  closable: true,
+  resizable: true
+});
+win.show();
+win.center();
 win.navigateToURL('index.html');
 
 // Set up the menubar
