@@ -142,7 +142,7 @@ TEST(ScribeGlobalIsAvailableToJSEnvironment)
   NSFileManager *fileManager = [NSFileManager defaultManager];
   [fileManager removeItemAtPath: plistPath error: nil];
   [fileManager removeItemAtPath: mainJSPath error: nil];
-  AssertFalse([[appDelegate mainContext][@"scribe"] isUndefined]);
+  AssertFalse([[appDelegate mainContext][@"Scribe"] isUndefined]);
 END_TEST
 
 END_TEST_SUITE

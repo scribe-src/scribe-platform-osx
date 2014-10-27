@@ -48,19 +48,25 @@ UnitTest("after calling on('x'), trigger('y') does not fire the callback", funct
 
 // TODO: NEED ASYNCHRONOUS SPEC HANDLING!
 
-// UnitTest("the 'close' event is fired on close", function(cb) {
-//   var win = buildWindow();
-//   this.timeout(5.0);
-//   win.on('close', function() { Assert(true); cb(); });
-//   win.close();
-// });
+UnitTest("the 'close' event is fired on close", function(cb) {
+  var win = buildWindow();
+  win.on('close', function() { cb(); });
+  win.close();
+});
 
-// UnitTest("the 'move' event is fired on move", function(){
-//   var win = buildWindow();
-//   var agent = spy();
-//   win.left = 300;
-//   win.close();
-// });
+UnitTest("the 'move' event is fired on move", function(cb){
+  var win = buildWindow();
+  win.on('move', function() { cb(); });
+  win.left = 300;
+  win.close();
+});
+
+UnitTest("the 'resize' event is fired on resize", function(cb){
+  var win = buildWindow();
+  win.on('resize', function() { cb(); });
+  win.height = 300;
+  win.close();
+});
 
 // UnitTest("height getter returns the height", function(){
 //   var win = buildWindow();

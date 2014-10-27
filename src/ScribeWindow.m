@@ -4,15 +4,18 @@
 // Abuse the Darwin linker to get a handle to the START of the
 // windowjs linker section. This way we can shove data in with `ld`
 extern int osxStart __asm("section$start$__DATA$__osxjs");
+ScribeWindow *lastInstance;
 
 @implementation ScribeWindow
 
-@synthesize webView, scribeEngine;
+@synthesize webView, scribeEngine, jsWrapperObject;
 
-- (id)initWithContentRect: (NSRect) contentRect
-                styleMask: (NSUInteger) windowStyle
-                  backing: (NSBackingStoreType) bufferingType
-                    defer: (BOOL) deferCreation {
++ (id) lastInstance { return lastInstance; }
+
+- (id) initWithContentRect: (NSRect) contentRect
+                 styleMask: (NSUInteger) windowStyle
+                   backing: (NSBackingStoreType) bufferingType
+                     defer: (BOOL) deferCreation {
 
   if (self = [super initWithContentRect: contentRect
                               styleMask: windowStyle
@@ -21,6 +24,8 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
     self.delegate = self;
     [self buildWebView];
   }
+
+  lastInstance = self;
 
   return self;
 }
@@ -85,7 +90,7 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
 // WebUIDelegate methods
 //
 
--(NSArray *) webView: (WebView *) sender
+- (NSArray *) webView: (WebView *) sender
     contextMenuItemsForElement: (NSDictionary *) element
     defaultMenuItems: (NSArray *) defaultMenuItems {
 
@@ -136,34 +141,44 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
   [scribeEngine.context evaluateScript: 
     @"Scribe.Window.currentWindow().trigger('minimize');"
   ];
+  [jsWrapperObject[@"trigger"] callWithArguments: @[@"minimize"]];
 }
 
 - (void) windowDidResize: (NSNotification *) notification {
   [scribeEngine.context evaluateScript: 
     @"Scribe.Window.currentWindow().trigger('resize');"
   ];
+  [jsWrapperObject[@"trigger"] callWithArguments: @[@"resize"]];
 }
 
 - (void) windowDidMove: (NSNotification *) notification {
   [scribeEngine.context evaluateScript: 
     @"Scribe.Window.currentWindow().trigger('move');"
   ];
+  [jsWrapperObject[@"trigger"] callWithArguments: @[@"move"]];
 }
 
 - (void) windowDidEnterFullScreen: (NSNotification *) notification {
   [scribeEngine.context evaluateScript: 
     @"Scribe.Window.currentWindow().trigger('fullscreen');"
   ];
+  [jsWrapperObject[@"trigger"] callWithArguments: @[@"fullscreen"]];
 }
 
-- (void) close {
+- (void) windowDidExitFullScreen: (NSNotification *) notification {
+  [scribeEngine.context evaluateScript: 
+    @"Scribe.Window.currentWindow().trigger('fullscreen');"
+  ];
+  [jsWrapperObject[@"trigger"] callWithArguments: @[@"fullscreen"]];
+}
+
+- (void) windowWillClose: (NSNotification *) notification {
   [scribeEngine.context evaluateScript: 
     @"setTimeout(function(){Scribe.Window.currentWindow().trigger('close');},5);"
   ];
-  [super close];
+  
+  [jsWrapperObject[@"trigger"] callWithArguments: @[@"close"]];
 }
-
-
 
 // - (void)webView: (WebView *) sender
 //         didClearWindowObject: (WebScriptObject *) windowObject
@@ -177,6 +192,7 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
 - (void) dealloc {
   [webView release], webView = nil;
   [scribeEngine release], scribeEngine = nil;
+  [jsWrapperObject release], jsWrapperObject = nil;
   [super dealloc];
 }
 
