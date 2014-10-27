@@ -1,6 +1,8 @@
 #import "AppDelegate.h"
 #import "ScribeEngine.h"
 
+// TODO DRY this w/ ScribeWindow.m
+extern int osxStart __asm("section$start$__DATA$__osxjs");
 
 @implementation AppDelegate
 
@@ -27,7 +29,12 @@
   self.mainContext = [[[JSContext alloc] initWithVirtualMachine: vm] autorelease];
 
   // inject the window.scribe global into the JavaScriptCore runtime
-  [ScribeEngine inject: self.mainContext];
+  ScribeEngine *engine = [ScribeEngine inject: self.mainContext];
+
+  if (osxStart) {
+    NSString *js = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
+    [engine.jsCocoa evalJSString: js];
+  }
 }
 
 // Attempts to populate the {infoPlist} ivar with the dictionary
