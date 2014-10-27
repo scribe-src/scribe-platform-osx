@@ -48,13 +48,12 @@ UnitTest("after calling on('x'), trigger('y') does not fire the callback", funct
 
 // TODO: NEED ASYNCHRONOUS SPEC HANDLING!
 
-// UnitTest("the 'close' event is fired on close", function(){
-//   var win = buildWindow();
-//   var agent = spy();
-//   win.on('close', agent);
-//   win.close();
-//   Assert(agent.called());
-// });
+UnitTest("the 'close' event is fired on close", function(cb) {
+  var win = buildWindow();
+  var agent = spy();
+  win.on('close', function() { Assert(true); cb(); });
+  win.close();
+});
 
 // UnitTest("the 'move' event is fired on move", function(){
 //   var win = buildWindow();

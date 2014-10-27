@@ -1,55 +1,75 @@
 function O2S(obj) {
-  if (obj === null)
+  if (obj === null) {
     return "null";
-  if (obj === undefined)
+  }
+  if (obj === undefined) {
     return "undefined";
-  if (obj && obj.toString)
+  }
+  if (obj && obj.toString) {
     return obj.toString();
-  if (obj === true)
+  }
+  if (obj === true) {
     return "true";
-  if (obj === false)
+  }
+  if (obj === false) {
     return "false";
-  return obj+"";
+  }
+
+  return String(obj);
 }
 
 function Assert(x) {
-  if (!x)
-    throw new Error("Expected "+O2S(x)+" to be truthy.")
+  if (!x) {
+    throw new Error("Expected " + O2S(x) + " to be truthy.");
+  }
 }
 
 function AssertLooseEqual(x, y) {
-  if (x != y)
-    throw new Error("Expected "+O2S(x)+" to == "+O2S(y)+".");
+  if (x != y) {
+    throw new Error("Expected " + O2S(x) + " to == " + O2S(y) + ".");
+  }
 }
 
 function AssertEqual(x, y) {
-  if (x !== y)
-    throw new Error("Expected "+O2S(x)+" to === "+O2S(y)+".");
+  if (x !== y) {
+    throw new Error("Expected " + O2S(x) + " to === " + O2S(y) + ".");
+  }
 }
 
 function AssertFalse(x) {
-  if (x)
-    throw new Error("Expected "+O2S(x)+" to be falsey.")
+  if (x) {
+    throw new Error("Expected " + O2S(x) + " to be falsey.");
+  }
 }
 
 function AssertLooseNotEqual(x, y) {
-  if (x == y)
-    throw new Error("Expected "+O2S(x)+" to != "+O2S(y)+".");
+  if (x == y) {
+    throw new Error("Expected " + O2S(x) + " to != " + O2S(y) + ".");
+  }
 }
 
 function AssertNotEqual(x, y) {
-  if (x === y)
-    throw new Error("Expected "+O2S(x)+" to !== "+O2S(y)+".");
+  if (x === y) {
+    throw new Error("Expected " + O2S(x) + " to !== " + O2S(y) + ".");
+  }
 }
 
 function AssertDefined(x) {
-  if (typeof x === 'undefined')
-    throw new Error("Expected "+O2S(x)+" to be defined.");
+  if (x === undefined) {
+    throw new Error("Expected " + O2S(x) + " to be defined.");
+  }
 }
 
 function AssertUndefined(x) {
-  if (typeof x !== 'undefined')
-    throw new Error("Expected "+O2S(x)+" to be undefined.");
+  if (x !== undefined) {
+    throw new Error("Expected " + O2S(x) + " to be undefined.");
+  }
+}
+
+// From: http://www.mattsnider.com/parsing-javascript-function-argument-names/
+function getParamNames(fn) {
+  var funStr = fn.toString();
+  return funStr.slice(funStr.indexOf('(') + 1, funStr.indexOf(')')).match(/([^\s,]+)/g);
 }
 
 // Implement a tiny DSL for adding multiple tests in one file
@@ -57,38 +77,42 @@ var global = this;
 global.tests = [];
 var currTestIdx = 0;
 function UnitTest(name, fn) {
-  global.tests.push({ name: name, fn: fn });
+  var params = getParamNames(fn);
+  global.tests.push({ name: name, fn: fn, async: !!params });
   UnitTest.nextName = UnitTest.testName();
-  UnitTest.hasNext = (UnitTest.nextName != null);
+  UnitTest.hasNext = (UnitTest.nextName !== null);
 }
 UnitTest.hasNext = false;
 UnitTest.nextName = null;
-UnitTest.testName = function() {
+UnitTest.testName = function () {
   if (currTestIdx < global.tests.length) {
     return global.tests[currTestIdx].name;
-  } else {
-    return null;
   }
+  return null;
 };
-UnitTest.runTest = function() {
+UnitTest.runTest = function (cb) {
   UnitTest.next();
   UnitTest.nextName = UnitTest.testName();
-  UnitTest.hasNext = (UnitTest.nextName != null);
+  UnitTest.hasNext = (UnitTest.nextName !== null);
 
-  if (currTestIdx-1 < global.tests.length) {
-    var fn = global.tests[currTestIdx-1].fn;
+  var test = global.tests[currTestIdx - 1];
+  if (currTestIdx - 1 < global.tests.length) {
     try {
-      fn();
+      test.fn(cb);
       delete global.ERROR;
+      if (!test.async) {
+        cb();
+      }
       return true;
     } catch (e) {
       global.ERROR = e;
+      cb();
       return false;
     }
   } else {
     return null;
   }
 };
-UnitTest.next = function() {
+UnitTest.next = function () {
   currTestIdx++;
 };

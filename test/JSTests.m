@@ -5,7 +5,7 @@
 #import <JavascriptCore/JavascriptCore.h>
 
 NSMutableArray *jsTests = nil;
-// extern int osxStart __asm("section$start$__DATA$__osxjs");
+extern int osxStart __asm("section$start$__DATA$__osxjs");
 
 void runJSTest() {
   NSString *path = [jsTests lastObject];
@@ -23,10 +23,10 @@ void runJSTest() {
   
   ScribeEngine *scribeEngine = [ScribeEngine inject: context];
 
-  // if (osxStart) {
-  //   NSString *jsOSX = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
-  //   [scribeEngine.jsCocoa evalJSString: jsOSX];
-  // }
+  if (osxStart) {
+    NSString *jsOSX = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
+    NSLog(@"Evaling the JS: %d %@", (int)[jsOSX length], [scribeEngine.jsCocoa evalJSString: jsOSX]);
+  }
 
   NSString *helpersjs = [NSString
     stringWithContentsOfFile: @"./test/support/TestHelpers.js"
@@ -45,16 +45,33 @@ void runJSTest() {
   BOOL passed = true;
   while ([context[@"UnitTest"][@"hasNext"] toBool]) {
     NSString *specName = [context[@"UnitTest"][@"nextName"] toString];
-    [scribeEngine.jsCocoa evalJSString: @"UnitTest.runTest()"];
 
-    JSValue *err = context[@"ERROR"];
-    if ([err isUndefined] || [err isNull]) {
-      ReportSpecSuccess(specName);
+    int keepRunning = true;
+    __block int* intPtr = &keepRunning;
+    int timer = 0;
+
+    [context[@"UnitTest"][@"runTest"] callWithArguments: @[^() {
+      NSLog(@"YAYYYYY ITS OVER!");
+      *intPtr = false;
+    }]];
+    
+    // wait for the done callback to finish
+    int end = (int)time(NULL) + 5;
+    BOOL timeExpired = NO;
+    while (keepRunning && (timeExpired = (int)time(NULL) < end));
+
+    if (timeExpired) {
+      ReportSpecFailure(specName, @"Time expired while running spec.");
     } else {
-      passed = false;
-      NSString *errStr = [NSString stringWithFormat: @"%@\n%@",
-        [err[@"message"] toString], [err[@"stack"] toString]];
-      ReportSpecFailure(specName, errStr);
+      JSValue *err = context[@"ERROR"];
+      if ([err isUndefined] || [err isNull]) {
+        ReportSpecSuccess(specName);
+      } else {
+        passed = false;
+        NSString *errStr = [NSString stringWithFormat: @"%@\n%@",
+          [err[@"message"] toString], [err[@"stack"] toString]];
+        ReportSpecFailure(specName, errStr);
+      }
     }
   }
 

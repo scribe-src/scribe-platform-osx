@@ -40,12 +40,13 @@ CFLAGS=-O1 -lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE $(ADD_DATA)
 all:
 	mkdir -p $(OUT_DIR)
 	$(CC) $(CFLAGS) -I$(ENGINE_SRC) -flat_namespace \
-		$(SRC_FILES) -o $(OUT_FILE) $(ADD_DATA)
+		$(SRC_FILES) -o $(OUT_FILE)
 	cp -R $(RES_DIR)/ $(APP_DIR)/
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_FILE)\n"
 
 clean:
-	rm -rf $(APP_DIR)/
+	rm -rf build/
+	mkdir -p build/
 
 open:
 	open $(APP_DIR)
