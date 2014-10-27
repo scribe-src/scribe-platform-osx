@@ -25,7 +25,7 @@ void runJSTest() {
 
   if (osxStart) {
     NSString *jsOSX = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
-    NSLog(@"Evaling the JS: %d %@", (int)[jsOSX length], [scribeEngine.jsCocoa evalJSString: jsOSX]);
+    [scribeEngine.jsCocoa evalJSString: jsOSX];
   }
 
   NSString *helpersjs = [NSString
@@ -51,7 +51,6 @@ void runJSTest() {
     int timer = 0;
 
     [context[@"UnitTest"][@"runTest"] callWithArguments: @[^() {
-      NSLog(@"YAYYYYY ITS OVER!");
       *intPtr = false;
     }]];
     
