@@ -76,6 +76,7 @@ function getParamNames(fn) {
 var global = this;
 global.tests = [];
 var currTestIdx = 0;
+var defaultTimeout = 5.0;
 function UnitTest(name, fn) {
   var params = getParamNames(fn);
   global.tests.push({ name: name, fn: fn, async: !!params });
@@ -84,6 +85,7 @@ function UnitTest(name, fn) {
 }
 UnitTest.hasNext = false;
 UnitTest.nextName = null;
+UnitTest.timeout = defaultTimeout;
 UnitTest.testName = function () {
   if (currTestIdx < global.tests.length) {
     return global.tests[currTestIdx].name;
@@ -92,13 +94,16 @@ UnitTest.testName = function () {
 };
 UnitTest.runTest = function (cb) {
   UnitTest.next();
+  UnitTest.timeout = defaultTimeout;
   UnitTest.nextName = UnitTest.testName();
   UnitTest.hasNext = (UnitTest.nextName !== null);
 
   var test = global.tests[currTestIdx - 1];
   if (currTestIdx - 1 < global.tests.length) {
     try {
-      test.fn(cb);
+      test.fn.call({
+        timeout: function (tm) { UnitTest.timeout = tm; }
+      }, cb);
       delete global.ERROR;
       if (!test.async) {
         cb();

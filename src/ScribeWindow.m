@@ -156,6 +156,13 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
   ];
 }
 
+- (void) close {
+  [scribeEngine.context evaluateScript: 
+    @"setTimeout(function(){Scribe.Window.currentWindow().trigger('close');},5);"
+  ];
+  [super close];
+}
+
 
 
 // - (void)webView: (WebView *) sender

@@ -55,12 +55,17 @@ void runJSTest() {
     }]];
     
     // wait for the done callback to finish
-    int end = (int)time(NULL) + 5;
+    double timeout = [context[@"UnitTest"][@"timeout"] toDouble];
+    double end = ((double)(int)time(NULL)) + timeout;
     BOOL timeExpired = NO;
-    while (keepRunning && (timeExpired = (int)time(NULL) < end));
+    while (keepRunning && !timeExpired) {
+      timeExpired = ((double)(int)time(NULL) > end);
+    }
 
     if (timeExpired) {
-      ReportSpecFailure(specName, @"Time expired while running spec.");
+      ReportSpecFailure(specName, [NSString stringWithFormat:
+        @"Time expired (%.1f seconds) while running spec.", timeout
+      ]);
     } else {
       JSValue *err = context[@"ERROR"];
       if ([err isUndefined] || [err isNull]) {
