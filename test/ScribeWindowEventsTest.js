@@ -68,6 +68,22 @@ UnitTest("the 'resize' event is fired on resize", function(cb){
   win.close();
 });
 
+UnitTest("the 'minimize' event is fired on minimize", function(cb){
+  var win = buildWindow();
+  win.on('minimize', function() { cb(); });
+  win.minimize();
+  win.close();
+});
+
+var g = this;
+UnitTest("the 'deminimize' event is fired on deminimize", function(cb){
+  var win = buildWindow();
+  win.on('deminimize', function() { cb(); });
+  win.minimize();
+  win.deminimize();
+  win.close();
+});
+
 // UnitTest("height getter returns the height", function(){
 //   var win = buildWindow();
 //   var height = win.height;

@@ -144,6 +144,13 @@ ScribeWindow *lastInstance;
   [jsWrapperObject[@"trigger"] callWithArguments: @[@"minimize"]];
 }
 
+- (void) windowDidDeminiaturize: (NSNotification *) notification {
+  [scribeEngine.context evaluateScript: 
+    @"Scribe.Window.currentWindow().trigger('deminimize');"
+  ];
+  [jsWrapperObject[@"trigger"] callWithArguments: @[@"deminimize"]];
+}
+
 - (void) windowDidResize: (NSNotification *) notification {
   [scribeEngine.context evaluateScript: 
     @"Scribe.Window.currentWindow().trigger('resize');"
