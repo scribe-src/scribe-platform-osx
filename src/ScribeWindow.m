@@ -1,5 +1,5 @@
 #import "ScribeWindow.h"
-
+#import "JSCocoa.h"
 
 // Abuse the Darwin linker to get a handle to the START of the
 // windowjs linker section. This way we can shove data in with `ld`
@@ -116,16 +116,12 @@ ScribeWindow *lastInstance;
   // with the universal bits of the Scribe.* namespace.
   ScribeEngine *engine = [ScribeEngine inject: context];
 
-  // ensure the code running in this window gets the correct result
-  // from Scribe.Window.currentWindow();
-  context[@"Scribe"][@"_currentNativeWindow"] = self;
-
+  // Inject the OSX-specific bits of the Scribe.* APIs, that get
+  // compiled into a header.
   if (osxStart) {
     NSString *js = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
     [engine.jsCocoa evalJSString: js];
   }
-
-  // Inject the OSX-specific bits of the Scribe.* APIs
 
   // save the ScribeEngine in an ivar if this is the top frame
   if (frame == [webView mainFrame]) {
