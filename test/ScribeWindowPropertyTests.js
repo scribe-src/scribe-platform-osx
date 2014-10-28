@@ -54,6 +54,21 @@ UnitTest("top getter returns the Y position", function(){
   AssertEqual(top, 2);
 });
 
+UnitTest("title constructor property sets the title", function(){
+  var win = buildWindow({title: 'joe'});
+  var title = win.title;
+  win.close();
+  AssertEqual(title, 'joe');
+});
+
+UnitTest("title setter sets the title", function(){
+  var win = buildWindow();
+  win.title = 'joe';
+  var title = win.title;
+  win.close();
+  AssertEqual(title, 'joe');
+});
+
 UnitTest("(top, left) changes after calling center():", function(){
   var win = buildWindow();
   var top = win.top;

@@ -187,6 +187,26 @@ ScribeWindow *lastInstance;
   [jsWrapperObject[@"trigger"] callWithArguments: @[@"close"]];
 }
 
+- (void) windowDidBecomeKey: (NSNotification *) notification {
+  [scribeEngine.context evaluateScript: 
+    @"Scribe.Window.currentWindow().trigger('focus');"
+  ];
+  
+  [jsWrapperObject[@"trigger"] callWithArguments: @[@"focus"]];
+}
+
+- (void) windowDidResignKey: (NSNotification *) notification {
+  [scribeEngine.context evaluateScript: 
+    @"Scribe.Window.currentWindow().trigger('blur');"
+  ];
+  
+  [jsWrapperObject[@"trigger"] callWithArguments: @[@"blur"]];
+}
+
+- (BOOL) canBecomeKeyWindow {
+  return YES;
+}
+
 // - (void)webView: (WebView *) sender
 //         didClearWindowObject: (WebScriptObject *) windowObject
 //         forFrame: (WebFrame *) frame {

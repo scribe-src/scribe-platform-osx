@@ -21,6 +21,12 @@ void runJSTest() {
   JSVirtualMachine *vm = [[JSVirtualMachine new] autorelease];
   JSContext *context = [[[JSContext alloc] initWithVirtualMachine: vm] autorelease];
   
+  context[@"setTimeout"] = ^(JSValue* function, JSValue* timeout) {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([timeout toInt32] * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+        [function callWithArguments:@[]];
+    });
+  };
+
   ScribeEngine *scribeEngine = [ScribeEngine inject: context];
 
   if (osxStart) {
@@ -42,6 +48,7 @@ void runJSTest() {
       [err[@"message"] toString], [err[@"stack"] toString]];
   }
 
+
   BOOL passed = true;
   while ([context[@"UnitTest"][@"hasNext"] toBool]) {
     NSString *specName = [context[@"UnitTest"][@"nextName"] toString];
@@ -59,6 +66,21 @@ void runJSTest() {
     double end = ((double)(int)time(NULL)) + timeout;
     BOOL timeExpired = NO;
     while (keepRunning && !timeExpired) {
+      NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
+      // spin the Cocoa run loop while the test executes
+      // this works really well,wtf
+      NSEvent *event =
+          [NSApp
+              nextEventMatchingMask:NSAnyEventMask
+              untilDate: [[NSDate date] dateByAddingTimeInterval: 1]
+              inMode:NSDefaultRunLoopMode
+              dequeue:YES];
+
+      [NSApp sendEvent:event];
+      [NSApp updateWindows];
+
+      [pool release];
       timeExpired = ((double)(int)time(NULL) > end);
     }
 
