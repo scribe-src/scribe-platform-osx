@@ -106,12 +106,12 @@ UnitTest.runTest = function (cb) {
       }, cb);
       delete global.ERROR;
       if (!test.async) {
-        // cb.kill;
+        cb.kill;
       }
       return true;
     } catch (e) {
       global.ERROR = e;
-      // cb.kill;
+      cb.kill;
       return false;
     }
   } else {
