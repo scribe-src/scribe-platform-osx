@@ -5,7 +5,19 @@
 #import <JavascriptCore/JavascriptCore.h>
 
 NSMutableArray *jsTests = nil;
+int* intPtr = NULL;
+@interface Killer: NSObject {}
+- (void)kill;
+@end
+@implementation Killer
+- (void)kill{ *intPtr = 0; }
+@end
+
 extern int osxStart __asm("section$start$__DATA$__osxjs");
+
+BOOL hasError(ScribeEngine *engine) {
+  return !![engine.jsCocoa objectWithName: @"ERROR"];
+}
 
 void runJSTest() {
   NSString *path = [jsTests lastObject];
@@ -17,17 +29,14 @@ void runJSTest() {
                        error: nil];
 
   [jsTests removeLastObject];
-
-  JSVirtualMachine *vm = [[JSVirtualMachine new] autorelease];
-  JSContext *context = [[[JSContext alloc] initWithVirtualMachine: vm] autorelease];
   
-  context[@"setTimeout"] = ^(JSValue* function, JSValue* timeout) {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([timeout toInt32] * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        [function callWithArguments:@[]];
-    });
-  };
+  // context[@"setTimeout"] = ^(JSValue* function, JSValue* timeout) {
+  //   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([timeout toInt32] * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+  //       [function callWithArguments:@[]];
+  //   });
+  // };
 
-  ScribeEngine *scribeEngine = [ScribeEngine inject: context];
+  ScribeEngine *scribeEngine = [ScribeEngine new];
 
   if (osxStart) {
     NSString *jsOSX = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
@@ -40,29 +49,34 @@ void runJSTest() {
                        error: nil];
   [scribeEngine.jsCocoa evalJSString: helpersjs];
 
-  js = [NSString stringWithFormat: @"try{%@}catch(e){this.ERROR=e}", js];
+  js = [NSString stringWithFormat: @"this.ERROR=null;try{%@}catch(e){this.ERROR=e}", js];
   [scribeEngine.jsCocoa evalJSString: js];
-  JSValue *err = context[@"ERROR"];
-  if (!([err isUndefined] || [err isNull])) {
-    [NSException raise: @"Error loading JS file" format:@"%@\n%@",
-      [err[@"message"] toString], [err[@"stack"] toString]];
+  if (hasError(scribeEngine)) {
+    JSValueRef err = [scribeEngine.jsCocoa evalJSString: @"this.ERROR"];
+    NSString *errStr = [scribeEngine.jsCocoa toString: err];   
+    [NSException raise: @"Error loading JS file" format:@"%@", errStr];
   }
 
 
   BOOL passed = true;
-  while ([context[@"UnitTest"][@"hasNext"] toBool]) {
-    NSString *specName = [context[@"UnitTest"][@"nextName"] toString];
+  while (JSValueToBoolean(scribeEngine.context,
+    [scribeEngine.jsCocoa evalJSString: @"UnitTest.hasNext"])) {
+
+    NSString *specName = [scribeEngine.jsCocoa objectWithName: @"UnitTest.nextName"];
 
     int keepRunning = true;
-    __block int* intPtr = &keepRunning;
+    intPtr = &keepRunning;
     int timer = 0;
 
-    [context[@"UnitTest"][@"runTest"] callWithArguments: @[^() {
-      *intPtr = false;
-    }]];
+    [scribeEngine.jsCocoa callJSFunctionNamed: @"RUN" withArgumentsArray: @[
+      [Killer new]
+    ]];
     
     // wait for the done callback to finish
-    double timeout = [context[@"UnitTest"][@"timeout"] toDouble];
+    double timeout = JSValueToNumber(scribeEngine.context, 
+      [scribeEngine.jsCocoa evalJSString: @"UnitTest.timeout"], NULL
+    );
+
     double end = ((double)(int)time(NULL)) + timeout;
     BOOL timeExpired = NO;
     while (keepRunning && !timeExpired) {
@@ -89,20 +103,22 @@ void runJSTest() {
         @"Time expired (%.1f seconds) while running spec.", timeout
       ]);
     } else {
-      JSValue *err = context[@"ERROR"];
-      if ([err isUndefined] || [err isNull]) {
-        ReportSpecSuccess(specName);
-      } else {
+      if (hasError(scribeEngine)) {
+        JSValueRef err = [scribeEngine.jsCocoa evalJSString: @"this.ERROR"];
         passed = false;
-        NSString *errStr = [NSString stringWithFormat: @"%@\n%@",
-          [err[@"message"] toString], [err[@"stack"] toString]];
+        NSString *errStr = [scribeEngine.jsCocoa toString: err];
         ReportSpecFailure(specName, errStr);
+      } else {
+        ReportSpecSuccess(specName);
       }
     }
   }
 
+  [scribeEngine release];
+
   Assert(true);
 }
+
 
 TEST_SUITE(JSTests)
 

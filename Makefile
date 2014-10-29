@@ -32,7 +32,8 @@ FRAMEWORKS=-framework Cocoa -framework WebKit \
 # Include all src files except src/main.m in the test suite
 M_FILES = $(wildcard src/*.m)
 SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) $(ENGINE_SRC)/**.m
-CFLAGS=-O1 -lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE $(ADD_DATA)
+CFLAGS=-O1 -lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE $(ADD_DATA) \
+  -mmacosx-version-min=10.5
 
 # Ensure that the `test` and `clean` targets always get run
 .PHONY: test clean

@@ -1,13 +1,11 @@
-#import <Cocoa/Cocoa.h>
-#import <JavaScriptCore/JavaScriptCore.h>
 #import "ScribeWindow.h"
+#import "ScribeEngine.h"
 
 @interface AppDelegate: NSObject <NSApplicationDelegate, NSWindowDelegate> {
   NSDictionary *infoPlist;
-  JSContext    *mainContext;
+  ScribeEngine *engine;
 }
 
-// populates the {mainContext} ivar with a valid JS runtime context.
 - (void) buildJSContext;
 
 // Attempts to populate the {infoPlist} ivar with the dictionary
@@ -40,6 +38,6 @@
 @property (nonatomic, retain) NSDictionary *infoPlist;
 
 // The Javascript runtime for running the MainJS js entrypoint
-@property (nonatomic, retain) JSContext    *mainContext;
+@property (nonatomic, retain) ScribeEngine *engine;
 
 @end

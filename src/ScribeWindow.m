@@ -134,73 +134,58 @@ ScribeWindow *lastInstance;
 //
 
 - (void) windowDidMiniaturize: (NSNotification *) notification {
-  [scribeEngine.context evaluateScript: 
-    @"Scribe.Window.currentWindow().trigger('minimize');"
-  ];
-  [jsWrapperObject[@"trigger"] callWithArguments: @[@"minimize"]];
+  [self triggerEvent: @"minimize"];
 }
 
 - (void) windowDidDeminiaturize: (NSNotification *) notification {
-  [scribeEngine.context evaluateScript: 
-    @"Scribe.Window.currentWindow().trigger('deminimize');"
-  ];
-  [jsWrapperObject[@"trigger"] callWithArguments: @[@"deminimize"]];
+  [self triggerEvent: @"deminimize"];
 }
 
 - (void) windowDidResize: (NSNotification *) notification {
-  [scribeEngine.context evaluateScript: 
-    @"Scribe.Window.currentWindow().trigger('resize');"
-  ];
-  [jsWrapperObject[@"trigger"] callWithArguments: @[@"resize"]];
+  [self triggerEvent: @"resize"];
 }
 
 - (void) windowDidMove: (NSNotification *) notification {
-  [scribeEngine.context evaluateScript: 
-    @"Scribe.Window.currentWindow().trigger('move');"
-  ];
-  [jsWrapperObject[@"trigger"] callWithArguments: @[@"move"]];
+  [self triggerEvent: @"move"];
 }
 
 - (void) windowDidEnterFullScreen: (NSNotification *) notification {
-  [scribeEngine.context evaluateScript: 
-    @"Scribe.Window.currentWindow().trigger('fullscreen');"
-  ];
-  [jsWrapperObject[@"trigger"] callWithArguments: @[@"fullscreen"]];
+  [self triggerEvent: @"fullscreen"];
 }
 
 - (void) windowDidExitFullScreen: (NSNotification *) notification {
-  [scribeEngine.context evaluateScript: 
-    @"Scribe.Window.currentWindow().trigger('fullscreen');"
-  ];
-  [jsWrapperObject[@"trigger"] callWithArguments: @[@"fullscreen"]];
+  [self triggerEvent: @"fullscreen"];
 }
 
 - (void) windowWillClose: (NSNotification *) notification {
-  [scribeEngine.context evaluateScript: 
-    @"setTimeout(function(){Scribe.Window.currentWindow().trigger('close');},5);"
-  ];
-  
-  [jsWrapperObject[@"trigger"] callWithArguments: @[@"close"]];
+  [self triggerEvent: @"close"];
 }
 
 - (void) windowDidBecomeKey: (NSNotification *) notification {
-  [scribeEngine.context evaluateScript: 
-    @"Scribe.Window.currentWindow().trigger('focus');"
-  ];
-  
-  [jsWrapperObject[@"trigger"] callWithArguments: @[@"focus"]];
+  [self triggerEvent: @"focus"];
 }
 
 - (void) windowDidResignKey: (NSNotification *) notification {
-  [scribeEngine.context evaluateScript: 
-    @"Scribe.Window.currentWindow().trigger('blur');"
-  ];
-  
-  [jsWrapperObject[@"trigger"] callWithArguments: @[@"blur"]];
+  [self triggerEvent: @"blur"];
 }
 
 - (BOOL) canBecomeKeyWindow {
   return YES;
+}
+
+- (void) triggerEvent: (NSString *)event {
+  [scribeEngine.jsCocoa evalJSString: [NSString stringWithFormat:
+    @"Scribe.Window.currentWindow().trigger('%@');", event
+  ]];
+
+  JSObjectRef obj = JSValueToObject(scribeEngine.context, jsWrapperObject, NULL);
+  JSStringRef propName = JSStringCreateWithUTF8CString("trigger");
+  JSStringRef blur = JSStringCreateWithUTF8CString(event); 
+  JSValueRef trigger = JSObjectGetProperty(scribeEngine.context, obj, propName, NULL);
+  JSObjectRef triggerObj = JSValueToObject(scribeEngine.context, trigger, NULL);
+  JSObjectCallAsFunction(scribeEngine.context, triggerObj, NULL, 1, (JSValueRef*)blur, NULL);
+  JSStringRelease(propName);
+  JSStringRelease(blur);
 }
 
 // - (void)webView: (WebView *) sender
@@ -215,7 +200,6 @@ ScribeWindow *lastInstance;
 - (void) dealloc {
   [webView release], webView = nil;
   [scribeEngine release], scribeEngine = nil;
-  [jsWrapperObject release], jsWrapperObject = nil;
   [super dealloc];
 }
 

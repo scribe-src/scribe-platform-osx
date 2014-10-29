@@ -1,12 +1,11 @@
 #import "AppDelegate.h"
-#import "ScribeEngine.h"
 
 // TODO DRY this w/ ScribeWindow.m
 extern int osxStart __asm("section$start$__DATA$__osxjs");
 
 @implementation AppDelegate
 
-@synthesize infoPlist, mainContext;
+@synthesize infoPlist, engine;
 
 // This method is called on the delegate by NSApplicationMain() when
 // initialization is complete (when the Dock icon stops bouncing).
@@ -22,14 +21,9 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
   }
 }
 
-// populates the {mainContext} ivar with a valid JS runtime context
 - (void) buildJSContext {
-  // build the vm and context
-  JSVirtualMachine *vm = [[JSVirtualMachine new] autorelease];
-  self.mainContext = [[[JSContext alloc] initWithVirtualMachine: vm] autorelease];
-
   // inject the window.scribe global into the JavaScriptCore runtime
-  ScribeEngine *engine = [ScribeEngine inject: self.mainContext];
+  self.engine = [[ScribeEngine new] autorelease];
 
   if (osxStart) {
     NSString *js = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
@@ -91,13 +85,13 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
     js = [NSString stringWithFormat:
       @"var err;try{(function(){%@})();}catch(e){err = e};err;", js];
 
-    JSValue *jsErr = [self.mainContext evaluateScript: js];
+    JSValueRef jsErr = [engine.jsCocoa evalJSString: js];
 
     // Check and bubble any JS errors as objc Exceptions
-    if (![jsErr isUndefined]) {
+    if (!JSValueIsUndefined(self.engine.context, jsErr)) {
       [NSException raise: @"MainJS Runtime Exception" format:
         @"An error occurred trying to execute the MainJS File: %@\n\n%@",
-        jsPath, jsErr
+        jsPath, [self.engine.jsCocoa toString: jsErr]
       ];
     }
   } else {
@@ -156,7 +150,7 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
   return finalPath;
 }
 
-- (NSString *)resourcesDir {
+- (NSString *) resourcesDir {
   NSFileManager *fileManager = [NSFileManager defaultManager];
   NSString *cwd = [fileManager currentDirectoryPath];
   NSString *app = [cwd stringByDeletingLastPathComponent];
@@ -164,10 +158,15 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
 }
 
 // The baseURL for webView SOP (defaults to file:// path)
-- (NSURL *)baseURL {
+- (NSURL *) baseURL {
   return [NSURL URLWithString:
     [self pathForResource: @"index" ofType: @"html"]
   ];
+}
+
+- (void) dealloc {
+  [engine release], engine = nil;
+  [super dealloc];
 }
 
 @end

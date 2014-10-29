@@ -74,7 +74,8 @@ TEST(MainJSIsRun)
   
   [fileManager removeItemAtPath: plistPath error: nil];
   [fileManager removeItemAtPath: mainJSPath error: nil];
-  AssertFalse([[appDelegate mainContext][@"x"] isUndefined]);
+  JSValueRef val = [appDelegate.engine.jsCocoa evalJSString: @"x"];
+  Assert(!JSValueIsUndefined(appDelegate.engine.context, val));
 END_TEST
 
 TEST(MissingMainJSKeyRaiseException)
@@ -142,7 +143,7 @@ TEST(ScribeGlobalIsAvailableToJSEnvironment)
   NSFileManager *fileManager = [NSFileManager defaultManager];
   [fileManager removeItemAtPath: plistPath error: nil];
   [fileManager removeItemAtPath: mainJSPath error: nil];
-  AssertFalse([[appDelegate mainContext][@"Scribe"] isUndefined]);
+  AssertNotNil([[appDelegate engine].jsCocoa objectWithName: @"Scribe"]);
 END_TEST
 
 END_TEST_SUITE
