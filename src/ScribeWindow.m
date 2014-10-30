@@ -41,10 +41,14 @@ ScribeWindow *lastInstance;
   return [self initWithFrame: CGRectMake(0, 0, 800, 800)];
 }
 
+- (void) setJsWrapper {
+  jsWrapperObject = [scribeEngine.jsCocoa evalJSString: @"Scribe.Window._lastInstance"];
+}
+
 - (void) buildWebView {
-  webView = [[WebView alloc] initWithFrame: self.frame
-                                 frameName: @"scribe"
-                                 groupName: nil];
+  webView = [[[WebView alloc] initWithFrame: self.frame
+                                  frameName: @"scribe"
+                                  groupName: nil] autorelease];
   webView.frameLoadDelegate = self;
   webView.UIDelegate = self;
 
@@ -114,7 +118,7 @@ ScribeWindow *lastInstance;
 
   // Inject JSCocoa runtime into the WebView's JS context, along
   // with the universal bits of the Scribe.* namespace.
-  ScribeEngine *engine = [ScribeEngine inject: context];
+  ScribeEngine *engine = [[ScribeEngine inject: context] retain];
 
   // Inject the OSX-specific bits of the Scribe.* APIs, that get
   // compiled into a header.
@@ -158,7 +162,7 @@ ScribeWindow *lastInstance;
 }
 
 - (void) windowWillClose: (NSNotification *) notification {
-  [self triggerEvent: @"close"];
+  // [self triggerEvent: @"close"];
 }
 
 - (void) windowDidBecomeKey: (NSNotification *) notification {
@@ -178,14 +182,14 @@ ScribeWindow *lastInstance;
     @"Scribe.Window.currentWindow().trigger('%@');", event
   ]];
 
-  JSObjectRef obj = JSValueToObject(scribeEngine.context, jsWrapperObject, NULL);
-  JSStringRef propName = JSStringCreateWithUTF8CString("trigger");
-  JSStringRef blur = JSStringCreateWithUTF8CString(event); 
-  JSValueRef trigger = JSObjectGetProperty(scribeEngine.context, obj, propName, NULL);
-  JSObjectRef triggerObj = JSValueToObject(scribeEngine.context, trigger, NULL);
-  JSObjectCallAsFunction(scribeEngine.context, triggerObj, NULL, 1, (JSValueRef*)blur, NULL);
-  JSStringRelease(propName);
-  JSStringRelease(blur);
+  // JSObjectRef obj = JSValueToObject(scribeEngine.context, jsWrapperObject, NULL);
+  // JSStringRef propName = JSStringCreateWithUTF8CString("trigger");
+  // JSStringRef blur = JSStringCreateWithUTF8CString(event); 
+  // JSValueRef trigger = JSObjectGetProperty(scribeEngine.context, obj, propName, NULL);
+  // JSObjectRef triggerObj = JSValueToObject(scribeEngine.context, trigger, NULL);
+  // JSObjectCallAsFunction(scribeEngine.context, triggerObj, NULL, 1, JSValueMakeString(scribeEngine.context, blur), NULL);
+  // JSStringRelease(propName);
+  // JSStringRelease(blur);
 }
 
 // - (void)webView: (WebView *) sender
@@ -198,6 +202,7 @@ ScribeWindow *lastInstance;
 // }
 
 - (void) dealloc {
+  jsWrapperObject = NULL;
   [webView release], webView = nil;
   [scribeEngine release], scribeEngine = nil;
   [super dealloc];

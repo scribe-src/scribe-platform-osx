@@ -5,12 +5,12 @@
 #import <JavascriptCore/JavascriptCore.h>
 
 NSMutableArray *jsTests = nil;
-int* intPtr = NULL;
+BOOL keepRunning;
 @interface Killer: NSObject {}
-- (void)kill;
+- (void)kill1;
 @end
 @implementation Killer
-- (void)kill{ *intPtr = 0; }
+- (void)kill1{ keepRunning = false; }
 @end
 
 extern int osxStart __asm("section$start$__DATA$__osxjs");
@@ -64,13 +64,10 @@ void runJSTest() {
 
     NSString *specName = [scribeEngine.jsCocoa objectWithName: @"UnitTest.nextName"];
 
-    int keepRunning = true;
-    intPtr = &keepRunning;
+    keepRunning = false;
     int timer = 0;
 
-    [scribeEngine.jsCocoa callJSFunctionNamed: @"RUN" withArgumentsArray: @[
-      [Killer new]
-    ]];
+    [scribeEngine.jsCocoa callFunction: @"RUN"];
     
     // wait for the done callback to finish
     double timeout = JSValueToNumber(scribeEngine.context, 
@@ -90,7 +87,7 @@ void runJSTest() {
               untilDate: [[NSDate date] dateByAddingTimeInterval: 1]
               inMode:NSDefaultRunLoopMode
               dequeue:YES];
-
+          NSLog(@"C");
       [NSApp sendEvent:event];
       [NSApp updateWindows];
 

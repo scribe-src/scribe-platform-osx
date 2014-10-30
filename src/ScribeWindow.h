@@ -18,6 +18,7 @@
 - (void) buildWebView;
 - (void) navigateToURL: (NSString *) url;
 - (void) triggerEvent: (NSString *)event;
+- (void) setJsWrapper;
 + (id) lastInstance;
 
 @end

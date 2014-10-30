@@ -92,7 +92,7 @@ UnitTest.testName = function () {
   }
   return null;
 };
-UnitTest.runTest = function (cb) {
+UnitTest.runTest = function () {
   UnitTest.next();
   UnitTest.timeout = defaultTimeout;
   UnitTest.nextName = UnitTest.testName();
@@ -103,15 +103,9 @@ UnitTest.runTest = function (cb) {
     try {
       test.fn.call({
         timeout: function (tm) { UnitTest.timeout = tm; }
-      }, cb);
-      delete global.ERROR;
-      if (!test.async) {
-        cb.kill;
-      }
-      return true;
+      });
     } catch (e) {
       global.ERROR = e;
-      cb.kill;
       return false;
     }
   } else {
