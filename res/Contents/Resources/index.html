@@ -3,7 +3,9 @@
 Hello World!
 <div style='width:200px;height:200px;background:#f00;'></div>
 <script>
-Scribe.log('LOLLZZ');
+Scribe.Window.current.on('move', function(){
+  document.body.innerHTML = 'MOVED.'
+})
 </script>
 </body>
 </html>

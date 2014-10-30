@@ -6,19 +6,18 @@
 @interface ScribeWindow: NSWindow <NSWindowDelegate> {
   WebView *webView;
   ScribeEngine *scribeEngine;
-  JSValueRef jsWrapperObject;
+  ScribeEngine *parentEngine;
 }
 
 @property (nonatomic, retain) WebView *webView;
 @property (nonatomic, retain) ScribeEngine *scribeEngine;
-@property (nonatomic, assign) JSValueRef jsWrapperObject;
+@property (nonatomic, assign) ScribeEngine *parentEngine;
 
 - (id) init;
 - (id) initWithFrame: (CGRect) frame;
 - (void) buildWebView;
 - (void) navigateToURL: (NSString *) url;
 - (void) triggerEvent: (NSString *)event;
-- (void) setJsWrapper;
 + (id) lastInstance;
 
 @end
