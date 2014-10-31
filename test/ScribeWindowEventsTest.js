@@ -46,72 +46,91 @@ UnitTest("after calling on('x'), trigger('y') does not fire the callback", funct
   AssertFalse(agent.called());
 });
 
+UnitTest("after calling on('x'), off('x'), trigger('x') does not fire the callback", function(){
+  var win = buildWindow();
+  var agent = spy();
+  win.on('x', agent);
+  win.off('x');
+  win.trigger('y');
+  AssertFalse(agent.called());
+});
+
+UnitTest("after calling on('x',fn), off('x',fn), trigger('x') does not fire the callback", function(){
+  var win = buildWindow();
+  var agent = spy();
+  win.on('x', agent);
+  win.off('x', agent);
+  win.trigger('y');
+  AssertFalse(agent.called());
+});
+
 // TODO: NEED ASYNCHRONOUS SPEC HANDLING!
 
 // UnitTest("the 'close' event is fired on close", function(cb) {
 //   var win = buildWindow();
-//   win.on('close', function() { cb(); });
-//   win.close();
+//   // win.show();
+//   // win.on('close', cb);
+//   // win.close();
+//   cb();
 // });
 
 // UnitTest("the 'move' event is fired on move", function(cb){
 //   var win = buildWindow();
-//   win.on('move', function() { cb(); });
-//   win.left = 300;
-//   win.close();
+//  cb.kill;
 // });
 
-// UnitTest("the 'resize' event is fired on resize", function(cb){
-//   var win = buildWindow();
-//   win.on('resize', function() { cb(); });
-//   win.height = 300;
-//   win.close();
-// });
+UnitTest("the 'resize' event is fired on resize", function(cb){
+  var win = buildWindow();
+  var agent = spy();
+  win.show();
+  win.on('resize', cb);
+  win.height = 300;
+});
 
-// UnitTest("the 'minimize' event is fired on minimize", function(cb){
-//   var win = buildWindow();
-//   win.on('minimize', function() { cb(); });
-//   win.minimize();
-//   win.close();
-// });
+UnitTest("the 'minimize' event is fired on minimize", function(cb){
+  var win = buildWindow();
+  win.on('minimize', function() { cb(); });
+  win.minimize();
+  win.close();
+});
 
-// UnitTest("the 'deminimize' event is fired on deminimize", function(cb){
-//   var win = buildWindow();
-//   win.on('deminimize', function() { cb(); });
-//   win.minimize();
-//   win.deminimize();
-//   win.close();
-// });
+UnitTest("the 'deminimize' event is fired on deminimize", function(cb){
+  var win = buildWindow();
+  win.on('deminimize', function() { cb(); });
+  win.minimize();
+  win.deminimize();
+  win.close();
+});
 
-// UnitTest("the 'focus' event is fired on show()", function(cb){
-//   var win = buildWindow({chrome: true});
-//   win.on('focus', function() { win.close(); cb(); });
-//   setTimeout(function(){
-//     win.show();
-//   },10);
-// });
+UnitTest("the 'focus' event is fired on show()", function(cb){
+  var win = buildWindow({chrome: true});
+  win.on('focus', function() { win.close(); cb(); });
+  setTimeout(function(){
+    win.show();
+  },10);
+});
 
-// UnitTest("the 'blur' event is fired on hide()", function(cb){
-//   var win = buildWindow({chrome: true});
-//   win.on('focus', function() { win.hide(); });
-//   win.on('blur', function() { win.close(); cb(); });
-//   setTimeout(function(){
-//     win.show();
-//   },10);
-// });
+UnitTest("the 'blur' event is fired on hide()", function(cb){
+  var win = buildWindow({chrome: true});
+  win.on('focus', function() { win.hide(); });
+  win.on('blur', function() { win.close(); cb(); });
+  setTimeout(function(){
+    win.show();
+  },10);
+});
 
-// UnitTest("the 'blur' event is fired on blur", function(cb){
-//   var win = buildWindow({chrome: true});
-//   win.on('blur', function() { cb(); });
-//   win.show();
-//   win.hide();
-//   win.show();
-//   win.close();
-// });
+UnitTest("the 'blur' event is fired on blur", function(cb){
+  var win = buildWindow({chrome: true});
+  win.on('blur', function() { cb(); });
+  win.show();
+  win.hide();
+  win.show();
+  win.close();
+});
 
-// UnitTest("height getter returns the height", function(){
-//   var win = buildWindow();
-//   var height = win.height;
-//   win.close();
-//   AssertEqual(height, 900);
-// });
+UnitTest("height getter returns the height", function(){
+  var win = buildWindow();
+  var height = win.height;
+  win.close();
+  AssertEqual(height, 900);
+});

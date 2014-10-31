@@ -8,7 +8,7 @@ ScribeWindow *lastInstance;
 
 @implementation ScribeWindow
 
-@synthesize webView, scribeEngine, parentEngine;
+@synthesize webView, scribeEngine, parentEngine, originalReference;
 
 + (id) lastInstance { return lastInstance; }
 
@@ -141,6 +141,7 @@ ScribeWindow *lastInstance;
 }
 
 - (void) windowDidResize: (NSNotification *) notification {
+  NSLog(@"Did resize.");
   [self triggerEvent: @"resize"];
 }
 
@@ -173,20 +174,26 @@ ScribeWindow *lastInstance;
 }
 
 - (void) triggerEvent: (NSString *)event {
+  NSLog(@"Scribe.Window.current.trigger('%@');", event);
   [scribeEngine.jsCocoa evalJSString: [NSString stringWithFormat:
     @"Scribe.Window.current.trigger('%@');", event
   ]];
 
-  // JSObjectRef obj = JSValueToObject(scribeEngine.context, jsWrapperObject, NULL);
-  // JSStringRef propName = JSStringCreateWithUTF8CString("trigger");
-  // JSStringRef blur = JSStringCreateWithUTF8CString(event); 
-  // JSValueRef trigger = JSObjectGetProperty(scribeEngine.context, obj, propName, NULL);
-  // JSObjectRef triggerObj = JSValueToObject(scribeEngine.context, trigger, NULL);
-  // JSValueRef args[1];
-  // args[0] = JSValueMakeString(scribeEngine.context, blur);
-  // JSObjectCallAsFunction(scribeEngine.context, triggerObj, obj, 1, args, NULL);
-  // JSStringRelease(propName);
-  // JSStringRelease(blur);
+  JSObjectRef obj = JSValueToObject(parentEngine.context, originalReference.value, NULL);
+  JSStringRef propName = JSStringCreateWithUTF8CString("trigger");
+  JSStringRef blur = JSStringCreateWithUTF8CString(event); 
+  JSValueRef trigger = JSObjectGetProperty(parentEngine.context, obj, propName, NULL);
+  JSObjectRef triggerObj = JSValueToObject(parentEngine.context, trigger, NULL);
+  JSValueRef args[1];
+  args[0] = JSValueMakeString(parentEngine.context, blur);
+  JSObjectCallAsFunction(parentEngine.context, triggerObj, obj, 1, args, NULL);
+  JSStringRelease(propName);
+  JSStringRelease(blur);
+}
+
+- (void) setOriginalReference: (JSValueRefAndContextRef) origRef {
+  originalReference = origRef;
+  JSValueProtect(originalReference.ctx, originalReference.value);
 }
 
 // - (void)webView: (WebView *) sender
@@ -201,7 +208,9 @@ ScribeWindow *lastInstance;
 - (void) dealloc {
   [webView release], webView = nil;
   [scribeEngine release], scribeEngine = nil;
+  [parentEngine release], parentEngine = nil;
   if (lastInstance == self) lastInstance = NULL;
+  JSValueUnprotect(originalReference.ctx, originalReference.value);
   [super dealloc];
 }
 

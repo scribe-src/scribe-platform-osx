@@ -7,11 +7,13 @@
   WebView *webView;
   ScribeEngine *scribeEngine;
   ScribeEngine *parentEngine;
+  JSValueRefAndContextRef originalReference;
 }
 
 @property (nonatomic, retain) WebView *webView;
 @property (nonatomic, retain) ScribeEngine *scribeEngine;
-@property (nonatomic, assign) ScribeEngine *parentEngine;
+@property (nonatomic, retain) ScribeEngine *parentEngine;
+@property (nonatomic, assign) JSValueRefAndContextRef originalReference;
 
 - (id) init;
 - (id) initWithFrame: (CGRect) frame;

@@ -92,23 +92,27 @@ UnitTest.testName = function () {
   }
   return null;
 };
-UnitTest.runTest = function () {
+UnitTest.runTest = function (cb) {
   UnitTest.next();
   UnitTest.timeout = defaultTimeout;
   UnitTest.nextName = UnitTest.testName();
   UnitTest.hasNext = (UnitTest.nextName !== null);
 
+  var cb = function() { global.killed = true; };
   var test = global.tests[currTestIdx - 1];
   if (currTestIdx - 1 < global.tests.length) {
     try {
       test.fn.call({
         timeout: function (tm) { UnitTest.timeout = tm; }
-      });
+      }, cb);
+      if (!test.async) cb();
     } catch (e) {
       global.ERROR = e;
+      cb();
       return false;
     }
   } else {
+    cb();
     return null;
   }
 };

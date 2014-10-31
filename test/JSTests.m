@@ -5,13 +5,6 @@
 #import <JavascriptCore/JavascriptCore.h>
 
 NSMutableArray *jsTests = nil;
-BOOL keepRunning;
-@interface Killer: NSObject {}
-- (void)kill1;
-@end
-@implementation Killer
-- (void)kill1{ keepRunning = false; }
-@end
 
 extern int osxStart __asm("section$start$__DATA$__osxjs");
 
@@ -29,12 +22,6 @@ void runJSTest() {
                        error: nil];
 
   [jsTests removeLastObject];
-  
-  // context[@"setTimeout"] = ^(JSValue* function, JSValue* timeout) {
-  //   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([timeout toInt32] * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-  //       [function callWithArguments:@[]];
-  //   });
-  // };
 
   ScribeEngine *scribeEngine = [ScribeEngine new];
 
@@ -51,21 +38,19 @@ void runJSTest() {
 
   js = [NSString stringWithFormat: @"this.ERROR=null;try{%@}catch(e){this.ERROR=e}", js];
   [scribeEngine.jsCocoa evalJSString: js];
+
   if (hasError(scribeEngine)) {
     JSValueRef err = [scribeEngine.jsCocoa evalJSString: @"this.ERROR"];
     NSString *errStr = [scribeEngine.jsCocoa toString: err];   
     [NSException raise: @"Error loading JS file" format:@"%@", errStr];
   }
 
+  while ([scribeEngine.jsCocoa toBool:
+    [scribeEngine.jsCocoa evalJSString: @"UnitTest.hasNext"]]) {
 
-  BOOL passed = true;
-  while (JSValueToBoolean(scribeEngine.context,
-    [scribeEngine.jsCocoa evalJSString: @"UnitTest.hasNext"])) {
-
+    [scribeEngine.jsCocoa evalJSString: @"this.killed=false;"];
+    NSAutoreleasePool *bigPool = [[NSAutoreleasePool alloc] init];
     NSString *specName = [scribeEngine.jsCocoa objectWithName: @"UnitTest.nextName"];
-
-    keepRunning = false;
-    int timer = 0;
 
     [scribeEngine.jsCocoa callFunction: @"RUN"];
     
@@ -76,7 +61,8 @@ void runJSTest() {
 
     double end = ((double)(int)time(NULL)) + timeout;
     BOOL timeExpired = NO;
-    while (keepRunning && !timeExpired) {
+    while (![scribeEngine.jsCocoa toBool:
+    [scribeEngine.jsCocoa evalJSString: @"this.killed"]] && !timeExpired) {
       NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
       // spin the Cocoa run loop while the test executes
@@ -84,10 +70,9 @@ void runJSTest() {
       NSEvent *event =
           [NSApp
               nextEventMatchingMask:NSAnyEventMask
-              untilDate: [[NSDate date] dateByAddingTimeInterval: 1]
+              untilDate: [[NSDate date] dateByAddingTimeInterval: 0.1]
               inMode:NSDefaultRunLoopMode
               dequeue:YES];
-          NSLog(@"C");
       [NSApp sendEvent:event];
       [NSApp updateWindows];
 
@@ -102,13 +87,14 @@ void runJSTest() {
     } else {
       if (hasError(scribeEngine)) {
         JSValueRef err = [scribeEngine.jsCocoa evalJSString: @"this.ERROR"];
-        passed = false;
         NSString *errStr = [scribeEngine.jsCocoa toString: err];
         ReportSpecFailure(specName, errStr);
       } else {
         ReportSpecSuccess(specName);
       }
     }
+
+    [bigPool release];
   }
 
   [scribeEngine release];
