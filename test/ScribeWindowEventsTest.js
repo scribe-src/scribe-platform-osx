@@ -64,20 +64,19 @@ UnitTest("after calling on('x',fn), off('x',fn), trigger('x') does not fire the 
   AssertFalse(agent.called());
 });
 
-// TODO: NEED ASYNCHRONOUS SPEC HANDLING!
+UnitTest("the 'close' event is fired on close", function(cb) {
+  var win = buildWindow();
+  win.show();
+  win.on('close', cb);
+  win.close();
+});
 
-// UnitTest("the 'close' event is fired on close", function(cb) {
-//   var win = buildWindow();
-//   // win.show();
-//   // win.on('close', cb);
-//   // win.close();
-//   cb();
-// });
-
-// UnitTest("the 'move' event is fired on move", function(cb){
-//   var win = buildWindow();
-//  cb.kill;
-// });
+UnitTest("the 'move' event is fired on move", function(cb){
+  var win = buildWindow();
+  win.show();
+  win.on('move', function() { win.close(); cb(); });
+  win.center();
+});
 
 UnitTest("the 'resize' event is fired on resize", function(cb){
   var win = buildWindow();
