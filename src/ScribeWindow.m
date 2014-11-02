@@ -8,7 +8,7 @@ ScribeWindow *lastInstance;
 
 @implementation ScribeWindow
 
-@synthesize webView, scribeEngine, parentEngine, originalReference;
+@synthesize webView, scribeEngine, parentEngine;
 
 + (id) lastInstance { return lastInstance; }
 
@@ -23,6 +23,7 @@ ScribeWindow *lastInstance;
                                   defer: deferCreation]) {
     self.delegate = self;
     lastInstance = self;
+    parentWindowIndex = -1;
 
     [self buildWebView];
   }
@@ -42,6 +43,7 @@ ScribeWindow *lastInstance;
 }
 
 - (void) buildWebView {
+  NSLog(@"PHEW buildinWebView my man");
   webView = [[[WebView alloc] initWithFrame: self.frame
                                   frameName: @"scribe"
                                   groupName: nil] autorelease];
@@ -111,6 +113,7 @@ ScribeWindow *lastInstance;
 - (void) webView: (WebView *) webView
          didCreateJavaScriptContext: (JSContext *) context
          forFrame: (WebFrame *) frame {
+
   // Inject JSCocoa runtime into the WebView's JS context, along
   // with the universal bits of the Scribe.* namespace.
   ScribeEngine *engine = [[ScribeEngine inject: [frame globalContext]] retain];
@@ -141,7 +144,6 @@ ScribeWindow *lastInstance;
 }
 
 - (void) windowDidResize: (NSNotification *) notification {
-  NSLog(@"Did resize.");
   [self triggerEvent: @"resize"];
 }
 
@@ -158,7 +160,7 @@ ScribeWindow *lastInstance;
 }
 
 - (void) windowWillClose: (NSNotification *) notification {
-  // [self triggerEvent: @"close"];
+  [self triggerEvent: @"close"];
 }
 
 - (void) windowDidBecomeKey: (NSNotification *) notification {
@@ -174,26 +176,22 @@ ScribeWindow *lastInstance;
 }
 
 - (void) triggerEvent: (NSString *)event {
-  NSLog(@"Scribe.Window.current.trigger('%@');", event);
-  [scribeEngine.jsCocoa evalJSString: [NSString stringWithFormat:
-    @"Scribe.Window.current.trigger('%@');", event
-  ]];
+  if (scribeEngine) {
+    NSLog(@"Scribe.Window.current.trigger('%@');", event);
+    [scribeEngine.jsCocoa evalJSString: [NSString stringWithFormat:
+      @"Scribe.Window.current.trigger('%@');", event
+    ]];
+  }
 
-  JSObjectRef obj = JSValueToObject(parentEngine.context, originalReference.value, NULL);
-  JSStringRef propName = JSStringCreateWithUTF8CString("trigger");
-  JSStringRef blur = JSStringCreateWithUTF8CString(event); 
-  JSValueRef trigger = JSObjectGetProperty(parentEngine.context, obj, propName, NULL);
-  JSObjectRef triggerObj = JSValueToObject(parentEngine.context, trigger, NULL);
-  JSValueRef args[1];
-  args[0] = JSValueMakeString(parentEngine.context, blur);
-  JSObjectCallAsFunction(parentEngine.context, triggerObj, obj, 1, args, NULL);
-  JSStringRelease(propName);
-  JSStringRelease(blur);
+  if (parentWindowIndex != -1) {
+    [parentEngine.jsCocoa evalJSString: [NSString stringWithFormat:
+      @"Scribe.Window.instances[%d].trigger('%@')", parentWindowIndex, event
+    ]];
+  }
 }
 
-- (void) setOriginalReference: (JSValueRefAndContextRef) origRef {
-  originalReference = origRef;
-  JSValueProtect(originalReference.ctx, originalReference.value);
+- (void) setParentWindowIndex: (NSInteger) idx {
+  parentWindowIndex = idx;
 }
 
 // - (void)webView: (WebView *) sender
@@ -210,7 +208,6 @@ ScribeWindow *lastInstance;
   [scribeEngine release], scribeEngine = nil;
   [parentEngine release], parentEngine = nil;
   if (lastInstance == self) lastInstance = NULL;
-  JSValueUnprotect(originalReference.ctx, originalReference.value);
   [super dealloc];
 }
 

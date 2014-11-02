@@ -51,7 +51,7 @@ UnitTest("after calling on('x'), off('x'), trigger('x') does not fire the callba
   var agent = spy();
   win.on('x', agent);
   win.off('x');
-  win.trigger('y');
+  win.trigger('x');
   AssertFalse(agent.called());
 });
 
@@ -60,7 +60,7 @@ UnitTest("after calling on('x',fn), off('x',fn), trigger('x') does not fire the 
   var agent = spy();
   win.on('x', agent);
   win.off('x', agent);
-  win.trigger('y');
+  win.trigger('x');
   AssertFalse(agent.called());
 });
 
@@ -81,25 +81,22 @@ UnitTest("after calling on('x',fn), off('x',fn), trigger('x') does not fire the 
 
 UnitTest("the 'resize' event is fired on resize", function(cb){
   var win = buildWindow();
-  var agent = spy();
   win.show();
-  win.on('resize', cb);
+  win.on('resize', function() { win.close(); cb(); });
   win.height = 300;
 });
 
 UnitTest("the 'minimize' event is fired on minimize", function(cb){
   var win = buildWindow();
-  win.on('minimize', function() { cb(); });
+  win.on('minimize', function() { win.close(); cb(); });
   win.minimize();
-  win.close();
 });
 
 UnitTest("the 'deminimize' event is fired on deminimize", function(cb){
   var win = buildWindow();
-  win.on('deminimize', function() { cb(); });
+  win.on('minimize', function() { win.deminimize(); });
+  win.on('deminimize', function() { win.close(); cb(); });
   win.minimize();
-  win.deminimize();
-  win.close();
 });
 
 UnitTest("the 'focus' event is fired on show()", function(cb){
