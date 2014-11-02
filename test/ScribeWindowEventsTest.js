@@ -102,32 +102,12 @@ UnitTest("the 'deminimize' event is fired on deminimize", function(cb){
 UnitTest("the 'focus' event is fired on show()", function(cb){
   var win = buildWindow({chrome: true});
   win.on('focus', function() { win.close(); cb(); });
-  setTimeout(function(){
-    win.show();
-  },10);
+  win.show();
 });
 
 UnitTest("the 'blur' event is fired on hide()", function(cb){
   var win = buildWindow({chrome: true});
-  win.on('focus', function() { win.hide(); });
-  win.on('blur', function() { win.close(); cb(); });
-  setTimeout(function(){
-    win.show();
-  },10);
-});
-
-UnitTest("the 'blur' event is fired on blur", function(cb){
-  var win = buildWindow({chrome: true});
-  win.on('blur', function() { cb(); });
+  win.on('focus', function() { setTimeout(function(){win.hide();},100); });
+  win.on('blur', function() { setTimeout(function(){win.close(); cb(); },100); });
   win.show();
-  win.hide();
-  win.show();
-  win.close();
-});
-
-UnitTest("height getter returns the height", function(){
-  var win = buildWindow();
-  var height = win.height;
-  win.close();
-  AssertEqual(height, 900);
 });

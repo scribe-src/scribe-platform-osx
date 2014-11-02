@@ -43,10 +43,9 @@ ScribeWindow *lastInstance;
 }
 
 - (void) buildWebView {
-  NSLog(@"PHEW buildinWebView my man");
-  webView = [[[WebView alloc] initWithFrame: self.frame
-                                  frameName: @"scribe"
-                                  groupName: nil] autorelease];
+  self.webView = [[[WebView alloc] initWithFrame: self.frame
+                                       frameName: @"scribe"
+                                       groupName: nil] autorelease];
   webView.frameLoadDelegate = self;
   webView.UIDelegate = self;
 
@@ -116,7 +115,7 @@ ScribeWindow *lastInstance;
 
   // Inject JSCocoa runtime into the WebView's JS context, along
   // with the universal bits of the Scribe.* namespace.
-  ScribeEngine *engine = [[ScribeEngine inject: [frame globalContext]] retain];
+  ScribeEngine *engine = [ScribeEngine inject: [frame globalContext]];
 
   // Inject the OSX-specific bits of the Scribe.* APIs, that get
   // compiled into a header.
@@ -177,7 +176,6 @@ ScribeWindow *lastInstance;
 
 - (void) triggerEvent: (NSString *)event {
   if (scribeEngine) {
-    NSLog(@"Scribe.Window.current.trigger('%@');", event);
     [scribeEngine.jsCocoa evalJSString: [NSString stringWithFormat:
       @"Scribe.Window.current.trigger('%@');", event
     ]];
