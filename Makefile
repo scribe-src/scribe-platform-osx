@@ -23,7 +23,7 @@ OUT_FILE=$(OUT_DIR)/Scribe
 OUT_TEST=build/run-tests
 
 APIJS=../scribe-api/dist/dist.js
-OSXJS=./src/ScribeWindow.OSX.js
+OSXJS=./src/Scribe.OSX.js
 APIJS_TMP=/tmp/APITMP.js
 OSXJS_TMP=/tmp/OSXTMP.js
 
@@ -45,8 +45,6 @@ CFLAGS=-O1 -lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE $(ADD_DATA) \
 
 init:
 	# Prepare some data for inserting into an macho segment
-	rm -f $(APIJS_TMP)
-	rm -f $(OSXJS_TMP)
 	cp $(APIJS) $(APIJS_TMP)
 	cp $(OSXJS) $(OSXJS_TMP)
 	# Append a null byte to the data
