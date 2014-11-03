@@ -2,8 +2,10 @@
 #import "JSCocoa.h"
 
 // Abuse the Darwin linker to get a handle to the START of the
-// windowjs linker section. This way we can shove data in with `ld`
+// osx linker section. This way we can shove data in with `ld`.
 extern int osxStart __asm("section$start$__DATA$__osxjs");
+
+// Keep the last instance around!
 ScribeWindow *lastInstance;
 
 @implementation ScribeWindow
@@ -126,6 +128,7 @@ ScribeWindow *lastInstance;
 
   // save the ScribeEngine in an ivar if this is the top frame
   if (frame == [webView mainFrame]) {
+    [self.scribeEngine release];
     self.scribeEngine = engine;
   }
 }

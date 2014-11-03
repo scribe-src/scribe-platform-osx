@@ -21,6 +21,10 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
   }
 }
 
+- (void) applicationDidChangeScreenParameters: (NSNotification *) aNotification {
+  // TODO: send to all ScribeEngines: 'Scribe.Screen.trigger("change")'
+}
+
 - (void) buildJSContext {
   // inject the window.scribe global into the JavaScriptCore runtime
   self.engine = [[ScribeEngine new] autorelease];

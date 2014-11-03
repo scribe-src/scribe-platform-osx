@@ -22,9 +22,14 @@ OUT_DIR=$(APP_DIR)/Contents/MacOS
 OUT_FILE=$(OUT_DIR)/Scribe
 OUT_TEST=build/run-tests
 
+APIJS=../scribe-api/dist/dist.js
+OSXJS=./src/ScribeWindow.OSX.js
+APIJS_TMP=/tmp/APITMP.js
+OSXJS_TMP=/tmp/OSXTMP.js
+
 # Needed for linking
-ADD_DATA = -sectcreate __DATA __windowjs ../scribe-api/dist/dist.js \
-  -sectcreate __DATA __osxjs ./src/ScribeWindow.OSX.js
+ADD_DATA = -sectcreate __DATA __scribejs $(APIJS_TMP) \
+  -sectcreate __DATA __osxjs $(OSXJS_TMP)
 
 FRAMEWORKS=-framework Cocoa -framework WebKit \
            -framework JavaScriptCore -framework AppKit
@@ -36,9 +41,19 @@ CFLAGS=-O1 -lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE $(ADD_DATA) \
   -mmacosx-version-min=10.5
 
 # Ensure that the `test` and `clean` targets always get run
-.PHONY: test clean
+.PHONY: test clean init
 
-all:
+init:
+	# Prepare some data for inserting into an macho segment
+	rm -f $(APIJS_TMP)
+	rm -f $(OSXJS_TMP)
+	cp $(APIJS) $(APIJS_TMP)
+	cp $(OSXJS) $(OSXJS_TMP)
+	# Append a null byte to the data
+	printf "\x00" >> $(APIJS_TMP)
+	printf "\x00" >> $(OSXJS_TMP)
+
+all: init
 	mkdir -p $(OUT_DIR)
 	$(CC) $(CFLAGS) -I$(ENGINE_SRC) -flat_namespace \
 		$(SRC_FILES) -o $(OUT_FILE)
@@ -58,7 +73,7 @@ run:
 debug:
 	gdb $(OUT_FILE)
 
-test:
+test: init
 	NSZombieEnabled=1 $(CC) $(CFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
 	  -I$(SRC_DIR) -I$(ENGINE_SRC) -I$(TEST_INC) -o $(OUT_TEST) \
 	  -D TEST_ENV
