@@ -215,8 +215,6 @@ Scribe.Window.prototype._setTitle = function(title) {
   this.nativeWindowObject.setTitle(title);
 }
 
-})();
-
 
 // Assign the Scribe.Window.current static class variable
 if (OSX.ScribeWindow.lastInstance) {
@@ -224,3 +222,24 @@ if (OSX.ScribeWindow.lastInstance) {
     nativeWindowObject: OSX.ScribeWindow.lastInstance
   });
 }
+
+
+Scribe.Screen._getAll = function() {
+  return [].slice.call(OSX.NSScreen.screens).map(function(screen) {
+    return new Scribe.Screen({ nativeScreenObject: screen });
+  });
+};
+
+Scribe.Screen.prototype._getWidth = function() {
+  return this.nativeScreenObject.frame.size.width;
+};
+
+Scribe.Screen.prototype._getHeight = function() {
+  return this.nativeScreenObject.frame.size.height;
+};
+
+Scribe.Screen.prototype._getNativeScreenObject = function() {
+  return this._nativeScreenObject;
+};
+
+}).call(this);
