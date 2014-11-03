@@ -55,13 +55,13 @@ Scribe.Window.prototype._center = function() {
 }
 
 Scribe.Window.prototype._show = function() {
-  this.nativeWindowObject.makeKeyAndOrderFront(null);
+  this.nativeWindowObject.makeKeyAndOrderFront({});
   OSX.NSApp.activateIgnoringOtherApps(true);
   this._isVisible = true;
 }
 
 Scribe.Window.prototype._hide = function() {
-  this.nativeWindowObject.orderOut(null);
+  this.nativeWindowObject.orderOut({});
   this._isVisible = false;
   this.trigger('blur');
 }
@@ -74,11 +74,11 @@ Scribe.Window.prototype._close = function() {
 }
 
 Scribe.Window.prototype._minimize = function() {
-  this.nativeWindowObject.miniaturize({});
+  this.nativeWindowObject.miniaturize(null);
 }
 
 Scribe.Window.prototype._deminimize = function() {
-  this.nativeWindowObject.deminiaturize({});
+  this.nativeWindowObject.deminiaturize(null);
 }
 
 Scribe.Window.prototype._getVisible = function() {

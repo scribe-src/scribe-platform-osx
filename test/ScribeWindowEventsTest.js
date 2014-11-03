@@ -107,6 +107,6 @@ UnitTest("the 'focus' event is fired on show()", function(cb){
 UnitTest("the 'blur' event is fired on hide()", function(cb){
   var win = buildWindow({chrome: true});
   win.on('focus', function() { setTimeout(function(){win.hide();},100); });
-  win.on('blur', function() { setTimeout(function(){win.close(); cb(); },100); });
+  win.on('blur', function() { setTimeout(function(){ win.close(); cb(); },100); });
   win.show();
 });
