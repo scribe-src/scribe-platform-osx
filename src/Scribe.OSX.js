@@ -242,4 +242,48 @@ Scribe.Screen.prototype._getNativeScreenObject = function() {
   return this._nativeScreenObject;
 };
 
+// Polyfill for alert()
+this.alert = function alert(msg) {
+  // join all the args together
+  msg = Array.prototype.slice.call(arguments).join(' ');
+  var alert = OSX.NSAlert.new;
+  alert.setMessageText(msg);
+  alert.setAlertStyle(OSX.NSWarningAlertStyle)
+
+  if (Scribe.Window.current) {
+    alert['beginSheetModalForWindow:completionHandler:'](
+      Scribe.Window.current.nativeWindowObject, null
+    )
+    while (Scribe.Window.current.nativeWindowObject.sheets.count > 0) {
+      OSX.ScribeEngine.spin(1);
+    }
+  } else {
+    alert.runModal;
+  }
+
+  alert.release;
+}
+
+this.confirm = function alert(msg) {
+  // join all the args together
+  msg = Array.prototype.slice.call(arguments).join(' ');
+  var retVal = false;
+
+  if (Scribe.Window.current) {
+    retVal = !!Scribe.Window.current.nativeWindowObject.confirm(msg);
+  } else {
+
+    var alert = OSX.NSAlert.new;
+    alert.setMessageText(msg);
+    alert.setAlertStyle(OSX.NSWarningAlertStyle).
+    alert.addButtonWithTitle('OK');
+    alert.addButtonWithTitle('Cancel');
+    retVal = (alert.runModal == OSX.NSModalResponseStop);
+    alert.release;
+  }
+
+  return retVal;  
+}
+
+
 }).call(this);

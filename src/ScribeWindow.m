@@ -195,6 +195,21 @@ ScribeWindow *lastInstance;
   parentWindowIndex = idx;
 }
 
+- (BOOL) confirm: (NSString *) msg {
+  NSAlert *alert = [NSAlert new];
+  [alert setMessageText: msg];
+  [alert addButtonWithTitle: @"OK"];
+  [alert addButtonWithTitle: @"Cancel"];
+  [alert setAlertStyle: NSWarningAlertStyle];
+
+  NSModalResponse __block rCode;
+  [alert beginSheetModalForWindow: self completionHandler: ^(NSModalResponse code) {
+    rCode = code;
+  }];
+  while ([[self sheets] count] > 0) [ScribeEngine spin: 1];
+  return (rCode == -NSModalResponseStop);
+}
+
 // - (void)webView: (WebView *) sender
 //         didClearWindowObject: (WebScriptObject *) windowObject
 //         forFrame: (WebFrame *) frame {

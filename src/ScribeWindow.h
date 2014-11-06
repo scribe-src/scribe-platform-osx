@@ -19,6 +19,7 @@
 - (void) buildWebView;
 - (void) navigateToURL: (NSString *) url;
 - (void) triggerEvent: (NSString *)event;
+- (BOOL) confirm: (NSString *) msg;
 + (id) lastInstance;
 
 @end
