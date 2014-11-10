@@ -12,7 +12,7 @@ SRC_DIR=src
 SRC_FILES=$(SRC_DIR)/**.m $(ENGINE_SRC)/**.m \
 	$(ENGINE_JSCOCOA_DIR)/**.m
 
-INCLUDES=-I$(ENGINE_SRC) -I$(ENGINE_JSCOCOA_DIR)
+INCLUDES=-I$(ENGINE_JSCOCOA_DIR) -I$(ENGINE_SRC)
 
 # Files needed for building tests
 TEST_DIR=test
@@ -31,6 +31,7 @@ OUT_TEST=build/run-tests
 
 SCRIBE_API_DIR=./deps/scribe-engine-jsc/deps/scribe-api
 APIJS=$(SCRIBE_API_DIR)/dist/dist.js
+ENGINE_JS=$(ENGINE_SRC)/engine.js
 OSXJS=./src/Scribe.OSX.js
 APIJS_TMP=$(TMP_DIR)/APITMP.js
 OSXJS_TMP=$(TMP_DIR)/OSXTMP.js
@@ -58,6 +59,7 @@ init:
 	make -C $(SCRIBE_API_DIR) dist
 	mkdir -p $(OUT_DIR)
 	cp $(APIJS) $(APIJS_TMP)
+	cat $(ENGINE_JS) >> $(APIJS_TMP)
 	cp $(OSXJS) $(OSXJS_TMP)
 	printf "\x00" >> $(APIJS_TMP)
 	printf "\x00" >> $(OSXJS_TMP)
@@ -84,14 +86,14 @@ debug:
 
 test: init
 	NSZombieEnabled=1 $(CC) $(CFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
-	  -I$(SRC_DIR) -I$(ENGINE_SRC) $(TEST_INC) -o $(OUT_TEST) \
+	  $(INCLUDES) $(TEST_INC) -o $(OUT_TEST) \
 	  -D TEST_ENV
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
 	$(OUT_TEST)
 
 test-travis: init
 	NSZombieEnabled=1 $(CC) $(TRAVISFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
-	  -I$(SRC_DIR) -I$(ENGINE_SRC) $(TEST_INC) -o $(OUT_TEST) \
+	  $(INCLUDES) $(TEST_INC) -o $(OUT_TEST) \
 	  -D TEST_ENV
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
 	$(OUT_TEST)
