@@ -12,7 +12,7 @@ SRC_DIR=src
 SRC_FILES=$(SRC_DIR)/**.m $(ENGINE_SRC)/**.m \
 	$(ENGINE_JSCOCOA_DIR)/**.m
 
-INCLUDES=-I$(ENGINE_JSCOCOA_DIR) -I$(ENGINE_SRC)
+INCLUDES=-I$(ENGINE_JSCOCOA_DIR) -I$(ENGINE_SRC) -I$(SRC_DIR)
 
 # Files needed for building tests
 TEST_DIR=test
@@ -45,7 +45,8 @@ FRAMEWORKS=-framework Cocoa -framework WebKit \
 
 # Include all src files except src/main.m in the test suite
 M_FILES = $(wildcard src/*.m)
-SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) $(ENGINE_SRC)/**.m
+SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) \
+  $(ENGINE_SRC)/**.m $(ENGINE_JSCOCOA_DIR)/**.m
 CFLAGS=-lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE $(ADD_DATA) \
   -mmacosx-version-min=10.5
 TRAVISFLAGS=-lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE \
