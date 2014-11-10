@@ -1,3 +1,6 @@
 [submodule "deps/scribe-engine-jsc"]
 	path = deps/scribe-engine-jsc
 	url = https://github.com/scribe-src/scribe-engine-jsc.git
+[submodule "deps/objc-unit"]
+	path = deps/objc-unit
+	url = https://github.com/scribe-src/objc-unit.git

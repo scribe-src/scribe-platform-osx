@@ -16,8 +16,10 @@ INCLUDES=-I$(ENGINE_SRC) -I$(ENGINE_JSCOCOA_DIR)
 
 # Files needed for building tests
 TEST_DIR=test
-TEST_FILES=$(TEST_DIR)/**.m $(TEST_DIR)/support/**.m
-TEST_INC=$(TEST_DIR)/support
+TEST_LIB_DIR=./deps/objc-unit/src
+TEST_FILES=$(TEST_DIR)/**.m $(TEST_DIR)/support/**.m \
+	$(TEST_LIB_DIR)/**.m
+TEST_INC=-I$(TEST_DIR)/support -I$(TEST_LIB_DIR)
 
 # Properties of the output build files
 RES_DIR=res
@@ -82,14 +84,14 @@ debug:
 
 test: init
 	NSZombieEnabled=1 $(CC) $(CFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
-	  -I$(SRC_DIR) -I$(ENGINE_SRC) -I$(TEST_INC) -o $(OUT_TEST) \
+	  -I$(SRC_DIR) -I$(ENGINE_SRC) $(TEST_INC) -o $(OUT_TEST) \
 	  -D TEST_ENV
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
 	$(OUT_TEST)
 
 test-travis: init
 	NSZombieEnabled=1 $(CC) $(TRAVISFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
-	  -I$(SRC_DIR) -I$(ENGINE_SRC) -I$(TEST_INC) -o $(OUT_TEST) \
+	  -I$(SRC_DIR) -I$(ENGINE_SRC) $(TEST_INC) -o $(OUT_TEST) \
 	  -D TEST_ENV
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
 	$(OUT_TEST)
