@@ -45,12 +45,13 @@ M_FILES = $(wildcard src/*.m)
 SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) $(ENGINE_SRC)/**.m
 CFLAGS=-lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE $(ADD_DATA) \
   -mmacosx-version-min=10.5
+TRAVISFLAGS=-lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE \
+	$(ADD_DATA)
 
 # Ensure that the `test` and `clean` targets always get run
 .PHONY: test clean init open run debug test-run
 
 init:
-	git submodule update --init --recursive
 	# Prepare some data for inserting into an macho segment
 	make -C $(SCRIBE_API_DIR) dist
 	mkdir -p $(OUT_DIR)
@@ -84,6 +85,14 @@ test: init
 	  -I$(SRC_DIR) -I$(ENGINE_SRC) -I$(TEST_INC) -o $(OUT_TEST) \
 	  -D TEST_ENV
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
+	$(OUT_TEST)
+
+test-travis: init
+	NSZombieEnabled=1 $(CC) $(TRAVISFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
+	  -I$(SRC_DIR) -I$(ENGINE_SRC) -I$(TEST_INC) -o $(OUT_TEST) \
+	  -D TEST_ENV
+	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
+	$(OUT_TEST)
 
 test-run:
 	NSZombieEnabled=1 $(OUT_TEST)
