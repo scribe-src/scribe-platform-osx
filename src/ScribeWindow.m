@@ -197,18 +197,48 @@ ScribeWindow *lastInstance;
 }
 
 - (BOOL) confirm: (NSString *) msg {
-  NSAlert *alert = [NSAlert new];
-  [alert setMessageText: msg];
-  [alert addButtonWithTitle: @"OK"];
-  [alert addButtonWithTitle: @"Cancel"];
-  [alert setAlertStyle: NSWarningAlertStyle];
+  NSAlert *alert = [NSAlert 
+    alertWithMessageText: msg
+    defaultButton: @"OK"
+    alternateButton: @"Cancel"
+    otherButton: nil
+    informativeTextWithFormat: @""
+  ];
 
   NSModalResponse __block rCode = 0x0;
   [alert beginSheetModalForWindow: self completionHandler: ^(NSModalResponse code) {
     rCode = code;
   }];
   while ([[self sheets] count] > 0) [ScribeEngine spin: 1];
-  return (rCode == -NSModalResponseStop);
+  return !!rCode;
+}
+
+- (NSString *) prompt: (NSString *) msg {
+  NSTextField *input = [[NSTextField alloc] initWithFrame: NSMakeRect(0, 0, 200, 24)];
+  NSAlert *alert = [NSAlert 
+    alertWithMessageText: msg
+    defaultButton: @"OK"
+    alternateButton: @"Cancel"
+    otherButton: nil
+    informativeTextWithFormat: @""
+  ];
+  [alert setAccessoryView: input];
+
+  NSModalResponse __block rCode = 0x0;
+  [alert beginSheetModalForWindow: self completionHandler: ^(NSModalResponse code) {
+    rCode = code;
+  }];
+  while ([[self sheets] count] > 0) [ScribeEngine spin: 1];
+
+  [input validateEditing];
+  NSString *ret = [input stringValue];
+  [input release];
+
+  if (rCode) {
+    return ret;
+  } else {
+    return nil;    
+  }
 }
 
 // - (void)webView: (WebView *) sender

@@ -243,7 +243,7 @@ Scribe.Screen.prototype._getNativeScreenObject = function() {
 };
 
 // Polyfill for alert()
-this.alert = function alert(msg) {
+this.alert = function $alert(msg) {
   // join all the args together
   msg = Array.prototype.slice.call(arguments).join(' ');
   var alert = OSX.NSAlert.new;
@@ -265,7 +265,7 @@ this.alert = function alert(msg) {
 }
 
 // Polyfill for confirm()
-this.confirm = function alert(msg) {
+this.confirm = function $confirm(msg) {
   // join all the args together
   msg = Array.prototype.slice.call(arguments).join(' ');
   var retVal = false;
@@ -273,14 +273,41 @@ this.confirm = function alert(msg) {
   if (Scribe.Window.current) {
     retVal = !!Scribe.Window.current.nativeWindowObject.confirm(msg);
   } else {
-
-    var alert = OSX.NSAlert.new;
-    alert.setMessageText(msg);
-    alert.setAlertStyle(OSX.NSWarningAlertStyle).
-    alert.addButtonWithTitle('OK');
-    alert.addButtonWithTitle('Cancel');
-    retVal = (alert.runModal == OSX.NSModalResponseStop);
+    var alert = OSX.NSAlert[
+      'alertWithMessageText:defaultButton:alternateButton:'+
+      'otherButton:informativeTextWithFormat:'
+    ](msg, 'OK', 'Cancel', null, '');
+    retVal = (alert.runModal == OSX.NSAlertDefaultReturn);
     alert.release;
+  }
+
+  return retVal;  
+}
+
+// Polyfill for confirm()
+this.prompt = function $prompt(msg) {
+  // join all the args together
+  msg = Array.prototype.slice.call(arguments).join(' ');
+  var retVal = false;
+
+  if (Scribe.Window.current) {
+    retVal = Scribe.Window.current.nativeWindowObject.prompt(msg);
+  } else {
+    var input = OSX.NSTextField.alloc.initWithFrame(
+      OSX.NSMakeRect(0, 0, 200, 24)
+    );
+    var alert = OSX.NSAlert[
+      'alertWithMessageText:defaultButton:alternateButton:'+
+      'otherButton:informativeTextWithFormat:'
+    ](msg, 'OK', 'Cancel', null, '');
+    alert.setAccessoryView(input);
+    if (alert.runModal == OSX.NSAlertDefaultReturn) {
+      input.validateEditing;
+      retVal = input.stringValue;
+    } else {
+      retVal = null;
+    }
+    input.release;
   }
 
   return retVal;  
