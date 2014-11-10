@@ -1,0 +1,3 @@
+[submodule "deps/scribe-engine-jsc"]
+	path = deps/scribe-engine-jsc
+	url = https://github.com/scribe-src/scribe-engine-jsc.git

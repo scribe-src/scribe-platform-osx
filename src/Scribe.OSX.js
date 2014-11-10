@@ -264,6 +264,7 @@ this.alert = function alert(msg) {
   alert.release;
 }
 
+// Polyfill for confirm()
 this.confirm = function alert(msg) {
   // join all the args together
   msg = Array.prototype.slice.call(arguments).join(' ');
@@ -285,5 +286,12 @@ this.confirm = function alert(msg) {
   return retVal;  
 }
 
+// Polyfill for debugger
+Object.defineProperty(this, 'debugger', {
+  get: function initDebugger() {
+    OSX.triggerDebugger();
+    return true;
+  }
+})
 
 }).call(this);

@@ -97,6 +97,7 @@ ScribeWindow *lastInstance;
     contextMenuItemsForElement: (NSDictionary *) element
     defaultMenuItems: (NSArray *) defaultMenuItems {
 
+    NSLog(@"%@", element);
     if ([defaultMenuItems count] == 1) {
       // remove the default "Reload option"
       return nil;
@@ -202,7 +203,7 @@ ScribeWindow *lastInstance;
   [alert addButtonWithTitle: @"Cancel"];
   [alert setAlertStyle: NSWarningAlertStyle];
 
-  NSModalResponse __block rCode;
+  NSModalResponse __block rCode = 0x0;
   [alert beginSheetModalForWindow: self completionHandler: ^(NSModalResponse code) {
     rCode = code;
   }];
