@@ -53,7 +53,7 @@ TRAVISFLAGS=-lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE \
 	$(ADD_DATA)
 
 # Ensure that the `test` and `clean` targets always get run
-.PHONY: test clean init open run debug test-run
+.PHONY: test clean init open run debug test-run test-travis
 
 init:
 	# Prepare some data for inserting into an macho segment
