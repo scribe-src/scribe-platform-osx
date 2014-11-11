@@ -15,7 +15,7 @@
 @property (nonatomic, retain) ScribeEngine *parentEngine;
 
 - (id) init;
-- (id) initWithFrame: (CGRect) frame;
+- (id) initWithFrame: (NSRect) frame;
 - (void) buildWebView;
 - (void) navigateToURL: (NSString *) url;
 - (void) triggerEvent: (NSString *)event;

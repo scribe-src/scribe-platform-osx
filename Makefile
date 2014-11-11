@@ -47,10 +47,10 @@ FRAMEWORKS=-framework Cocoa -framework WebKit \
 M_FILES = $(wildcard src/*.m)
 SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) \
   $(ENGINE_SRC)/**.m $(ENGINE_JSCOCOA_DIR)/**.m
-CFLAGS=-lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE $(ADD_DATA) \
+CFLAGS=-lobjc -lffi $(FRAMEWORKS) -fPIE $(ADD_DATA) \
   -mmacosx-version-min=10.5 -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap \
   -lpthread
-TRAVISFLAGS=-lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE \
+TRAVISFLAGS=-lobjc -lffi $(FRAMEWORKS) -fPIE \
 	$(ADD_DATA) -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap -lpthread
 
 # Ensure that the `test` and `clean` targets always get run
@@ -68,8 +68,12 @@ init:
 
 all: init
 	mkdir -p $(OUT_DIR)
-	$(CC) $(CFLAGS) $(INCLUDES) -flat_namespace \
-		$(SRC_FILES) -o $(OUT_FILE)
+	$(CC) $(CFLAGS) $(INCLUDES) -flat_namespace  -arch x86_64 \
+		$(SRC_FILES) -o $(OUT_FILE).x64
+	$(CC) $(CFLAGS) $(INCLUDES) -flat_namespace  -arch i386 \
+		$(SRC_FILES) -o $(OUT_FILE).x86
+	lipo -create $(OUT_FILE).x64 $(OUT_FILE).x86 -output $(OUT_FILE)
+	rm -f $(OUT_FILE).x64 $(OUT_FILE).x86
 	cp -R $(RES_DIR)/ $(APP_DIR)/
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_FILE)\n"
 

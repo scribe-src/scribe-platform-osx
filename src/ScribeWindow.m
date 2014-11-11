@@ -33,7 +33,7 @@ ScribeWindow *lastInstance;
   return self;
 }
 
-- (id) initWithFrame: (CGRect) frame {
+- (id) initWithFrame: (NSRect) frame {
   return [self initWithContentRect: frame
                          styleMask: NSTitledWindowMask
                            backing: NSBackingStoreBuffered
@@ -41,7 +41,7 @@ ScribeWindow *lastInstance;
 }
 
 - (id) init {
-  return [self initWithFrame: CGRectMake(0, 0, 800, 800)];
+  return [self initWithFrame: NSMakeRect(0, 0, 800, 800)];
 }
 
 - (void) buildWebView {
