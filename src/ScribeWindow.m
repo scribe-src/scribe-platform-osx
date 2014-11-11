@@ -51,6 +51,13 @@ ScribeWindow *lastInstance;
   webView.frameLoadDelegate = self;
   webView.UIDelegate = self;
 
+  NSString *app = [[[NSBundle mainBundle] localizedInfoDictionary]
+    objectForKey:@"CFBundleName"];
+
+  if (!app) app = @"Scribe";
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-method-access"
   WebPreferences *prefs = [webView preferences];
   [prefs setAutosaves:YES];
 
@@ -69,15 +76,10 @@ ScribeWindow *lastInstance;
   [prefs setWebSecurityEnabled: NO];
   [prefs setJavaScriptCanAccessClipboard: YES];
   [prefs setNotificationsEnabled: YES];
-
-  NSString *app = [[[NSBundle mainBundle] localizedInfoDictionary]
-    objectForKey:@"CFBundleName"];
-
-  if (!app) app = @"Scribe";
-
   [prefs setLocalStorageEnabled: YES];
   [prefs _setLocalStorageDatabasePath:
     [NSString stringWithFormat: @"~/Library/Application Support/%@", app]];
+#pragma clang diagnostic pop
 
   [self setContentView: webView];
 }
@@ -180,15 +182,19 @@ ScribeWindow *lastInstance;
 
 - (void) triggerEvent: (NSString *)event {
   if (scribeEngine) {
-    [scribeEngine.jsCocoa evalJSString: [NSString stringWithFormat:
-      @"Scribe.Window.current.trigger('%@');", event
-    ]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [scribeEngine.jsCocoa evalJSString: [NSString stringWithFormat:
+        @"Scribe.Window.current.trigger('%@');", event
+      ]];
+    });
   }
 
   if (parentWindowIndex != -1) {
-    [parentEngine.jsCocoa evalJSString: [NSString stringWithFormat:
-      @"Scribe.Window.instances[%d].trigger('%@')", parentWindowIndex, event
-    ]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [parentEngine.jsCocoa evalJSString: [NSString stringWithFormat:
+        @"Scribe.Window.instances[%d].trigger('%@')", parentWindowIndex, event
+      ]];
+    });
   }
 }
 
@@ -206,16 +212,28 @@ ScribeWindow *lastInstance;
   ];
 
   NSModalResponse __block rCode = 0x0;
-  [alert beginSheetModalForWindow: self completionHandler: ^(NSModalResponse code) {
-    rCode = code;
-  }];
-  while ([[self sheets] count] > 0) [ScribeEngine spin: 1];
+  BOOL __block done = NO;
+
+  if (![NSThread isMainThread]) {
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      [alert beginSheetModalForWindow: self completionHandler: ^(NSModalResponse code) {
+        rCode = code;
+        done = YES;
+      }];
+    });
+  } else {
+    [alert beginSheetModalForWindow: self completionHandler: ^(NSModalResponse code) {
+        rCode = code;
+        done = YES;
+      }];
+    while (!done) [ScribeEngine spin: 1];
+  }
   return !!rCode;
 }
 
 - (NSString *) prompt: (NSString *) msg {
   NSTextField *input = [[NSTextField alloc] initWithFrame: NSMakeRect(0, 0, 200, 24)];
-  NSAlert *alert = [NSAlert 
+  NSAlert __block *alert = [NSAlert 
     alertWithMessageText: msg
     defaultButton: @"OK"
     alternateButton: @"Cancel"
@@ -225,10 +243,21 @@ ScribeWindow *lastInstance;
   [alert setAccessoryView: input];
 
   NSModalResponse __block rCode = 0x0;
-  [alert beginSheetModalForWindow: self completionHandler: ^(NSModalResponse code) {
-    rCode = code;
-  }];
-  while ([[self sheets] count] > 0) [ScribeEngine spin: 1];
+  BOOL __block done = NO;
+  if (![NSThread isMainThread]) {
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      [alert beginSheetModalForWindow: self completionHandler: ^(NSModalResponse code) {
+        rCode = code;
+        done = YES;
+      }];
+    });
+  } else {
+    [alert beginSheetModalForWindow: self completionHandler: ^(NSModalResponse code) {
+      rCode = code;
+      done = YES;
+    }];
+    while (!done) [ScribeEngine spin: 1];
+  }
 
   [input validateEditing];
   NSString *ret = [input stringValue];
