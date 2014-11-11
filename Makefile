@@ -48,9 +48,10 @@ M_FILES = $(wildcard src/*.m)
 SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) \
   $(ENGINE_SRC)/**.m $(ENGINE_JSCOCOA_DIR)/**.m
 CFLAGS=-lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE $(ADD_DATA) \
-  -mmacosx-version-min=10.5
+  -mmacosx-version-min=10.5 -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap \
+  -lpthread
 TRAVISFLAGS=-lobjc -lffi -arch x86_64 $(FRAMEWORKS) -fPIE \
-	$(ADD_DATA)
+	$(ADD_DATA) -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap -lpthread
 
 # Ensure that the `test` and `clean` targets always get run
 .PHONY: test clean init open run debug test-run test-travis
