@@ -4,6 +4,8 @@
 
 TEST_SUITE(LocalStorageTests)
 
+FORK(NO)
+
 TEST(LocalStorageIsPersisted)
   // NSApplication *app = [NSApplication sharedApplication];
 

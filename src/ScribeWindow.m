@@ -182,19 +182,32 @@ ScribeWindow *lastInstance;
 
 - (void) triggerEvent: (NSString *)event {
   if (scribeEngine) {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    void (^selfTrigger)() = ^{
       [scribeEngine.jsCocoa evalJSString: [NSString stringWithFormat:
         @"Scribe.Window.current.trigger('%@');", event
       ]];
-    });
+    };
+
+    if ([NSThread isMainThread]) {
+      selfTrigger();
+    } else {
+      dispatch_sync(dispatch_get_main_queue(), selfTrigger);
+    }
   }
 
   if (parentWindowIndex != -1) {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    void (^refTrigger)() = ^{
       [parentEngine.jsCocoa evalJSString: [NSString stringWithFormat:
-        @"Scribe.Window.instances[%d].trigger('%@')", parentWindowIndex, event
+        @"Scribe.Window.instances[%d] && Scribe.Window.instances[\
+          %d].trigger('%@')", parentWindowIndex, parentWindowIndex, event
       ]];
-    });
+    };
+
+    if ([NSThread isMainThread]) {
+      refTrigger();
+    } else {
+      dispatch_sync(dispatch_get_main_queue(), refTrigger);
+    }
   }
 }
 
