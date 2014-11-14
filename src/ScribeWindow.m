@@ -184,7 +184,7 @@ ScribeWindow *lastInstance;
   if (scribeEngine) {
     void (^selfTrigger)() = ^{
       [scribeEngine.jsCocoa evalJSString: [NSString stringWithFormat:
-        @"Scribe.Window.current.trigger('%@');", event
+        @"setTimeout(function(){Scribe.Window.current.trigger('%@');},0)", event
       ]];
     };
 
@@ -198,8 +198,8 @@ ScribeWindow *lastInstance;
   if (parentWindowIndex != -1) {
     void (^refTrigger)() = ^{
       [parentEngine.jsCocoa evalJSString: [NSString stringWithFormat:
-        @"Scribe.Window.instances[%d] && Scribe.Window.instances[\
-          %d].trigger('%@')", parentWindowIndex, parentWindowIndex, event
+        @"setTimeout(function(){Scribe.Window.instances[%d] && Scribe.Window.instances[\
+          %d].trigger('%@');},0)", parentWindowIndex, parentWindowIndex, event
       ]];
     };
 

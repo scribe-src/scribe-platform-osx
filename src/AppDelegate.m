@@ -1,4 +1,5 @@
 #import "AppDelegate.h"
+#import "JSDebugConsole.h"
 
 // TODO DRY this w/ ScribeWindow.m
 extern int osxStart __asm("section$start$__DATA$__osxjs");
@@ -14,6 +15,14 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
   @try {
     [self buildJSContext];
     [self readInfoPlist];
+
+    if ([[[NSProcessInfo processInfo].arguments objectAtIndex: 1]
+      isEqual: @"console"]) {
+      JSDebugConsole *console = [[JSDebugConsole alloc] initWithJSCocoa: engine.jsCocoa];
+      [console start];
+      [console release];
+    }
+
     [self loadMainJS];
   } @catch (NSException *e) {
     NSLog(@"Error occurred during initialization: %@", e);
