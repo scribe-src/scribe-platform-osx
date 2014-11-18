@@ -126,7 +126,7 @@ ScribeWindow *lastInstance;
   // compiled into a header.
   if (osxStart) {
     NSString *js = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
-    [engine.jsCocoa evalJSString: js];
+    [engine.jsc evalJSString: js];
   }
 
   // save the ScribeEngine in an ivar if this is the top frame
@@ -134,6 +134,8 @@ ScribeWindow *lastInstance;
     [self.scribeEngine release];
     self.scribeEngine = engine;
   }
+
+  [engine release];
 }
 
 //
@@ -180,10 +182,17 @@ ScribeWindow *lastInstance;
   return YES;
 }
 
+- (void) close {
+  NSLog(@"Closed.");
+  [super close];
+  [self release];
+}
+
 - (void) triggerEvent: (NSString *)event {
+  NSLog(@"Trigger Event: %@", event);
   if (scribeEngine) {
     void (^selfTrigger)() = ^{
-      [scribeEngine.jsCocoa evalJSString: [NSString stringWithFormat:
+      [scribeEngine.jsc evalJSString: [NSString stringWithFormat:
         @"setTimeout(function(){Scribe.Window.current.trigger('%@');},0)", event
       ]];
     };
@@ -195,9 +204,10 @@ ScribeWindow *lastInstance;
     }
   }
 
-  if (parentWindowIndex != -1) {
+  if (parentEngine && parentWindowIndex != -1) {
+    NSLog(@"%d", parentWindowIndex);
     void (^refTrigger)() = ^{
-      [parentEngine.jsCocoa evalJSString: [NSString stringWithFormat:
+      [parentEngine.jsc evalJSString: [NSString stringWithFormat:
         @"setTimeout(function(){Scribe.Window.instances[%d] && Scribe.Window.instances[\
           %d].trigger('%@');},0)", parentWindowIndex, parentWindowIndex, event
       ]];
@@ -293,10 +303,19 @@ ScribeWindow *lastInstance;
 // }
 
 - (void) dealloc {
+  NSLog(@"Deallocating Window.");
+  if (parentWindowIndex != -1 && parentEngine) {
+    [parentEngine.jsc evalJSString: [NSString stringWithFormat:
+      @"Scribe.Window.instances[%d]=null;",
+      parentWindowIndex
+    ]];
+  }
+
   [webView release], webView = nil;
   [scribeEngine release], scribeEngine = nil;
   [parentEngine release], parentEngine = nil;
   if (lastInstance == self) lastInstance = NULL;
+  NSLog(@"Super dealloc.");
   [super dealloc];
 }
 

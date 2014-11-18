@@ -74,7 +74,7 @@ TEST(MainJSIsRun)
   
   [fileManager removeItemAtPath: plistPath error: nil];
   [fileManager removeItemAtPath: mainJSPath error: nil];
-  JSValueRef val = [appDelegate.engine.jsCocoa evalJSString: @"x"];
+  JSValueRef val = [appDelegate.engine.jsc evalJSString: @"x"];
   Assert(!JSValueIsUndefined(appDelegate.engine.context, val));
 END_TEST
 
@@ -145,7 +145,7 @@ END_TEST
 //   NSFileManager *fileManager = [NSFileManager defaultManager];
 //   [fileManager removeItemAtPath: plistPath error: nil];
 //   [fileManager removeItemAtPath: mainJSPath error: nil];
-//   AssertNotNil([[appDelegate engine].jsCocoa objectWithName: @"Scribe"]);
+//   AssertNotNil([[appDelegate engine].jsc objectWithName: @"Scribe"]);
 // END_TEST
 
 END_TEST_SUITE

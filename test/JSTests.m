@@ -9,7 +9,7 @@ NSMutableArray *jsTests = nil;
 extern int osxStart __asm("section$start$__DATA$__osxjs");
 
 BOOL hasError(ScribeEngine *engine) {
-  return !![engine.jsCocoa objectWithName: @"ERROR"];
+  return !![engine.jsc objectWithName: @"ERROR"];
 }
 
 void runJSTest() {
@@ -27,67 +27,54 @@ void runJSTest() {
 
   if (osxStart) {
     NSString *jsOSX = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
-    [scribeEngine.jsCocoa evalJSString: jsOSX];
+    [scribeEngine.jsc evalJSString: jsOSX];
   }
 
   NSString *helpersjs = [NSString
     stringWithContentsOfFile: @"./test/support/TestHelpers.js"
                     encoding: NSUTF8StringEncoding
                        error: nil];
-  [scribeEngine.jsCocoa evalJSString: helpersjs];
+  [scribeEngine.jsc evalJSString: helpersjs];
 
   js = [NSString stringWithFormat: @"this.ERROR=null;try{%@}catch(e){this.ERROR=e}", js];
-  [scribeEngine.jsCocoa evalJSString: js];
+  [scribeEngine.jsc evalJSString: js];
 
   if (hasError(scribeEngine)) {
-    JSValueRef err = [scribeEngine.jsCocoa evalJSString: @"this.ERROR"];
-    NSString *errStr = [scribeEngine.jsCocoa toString: err];   
+    JSValueRef err = [scribeEngine.jsc evalJSString: @"this.ERROR"];
+    NSString *errStr = [scribeEngine.jsc toString: err];   
     [NSException raise: @"Error loading JS file" format:@"%@", errStr];
   }
 
-  while ([scribeEngine.jsCocoa toBool:
-    [scribeEngine.jsCocoa evalJSString: @"UnitTest.hasNext"]]) {
+  while ([scribeEngine.jsc toBool:
+    [scribeEngine.jsc evalJSString: @"UnitTest.hasNext"]]) {
+    [ScribeEngine spin: 1];
 
-    [scribeEngine.jsCocoa evalJSString: @"this.killed=false;"];
+    [scribeEngine.jsc evalJSString: @"this.killed=false;"];
     NSAutoreleasePool *bigPool = [[NSAutoreleasePool alloc] init];
-    NSString *specName = [scribeEngine.jsCocoa objectWithName: @"UnitTest.nextName"];
+    NSString *specName = [scribeEngine.jsc objectWithName: @"UnitTest.nextName"];
 
-    [scribeEngine.jsCocoa callFunction: @"RUN"];
+    [scribeEngine.jsc callFunction: @"RUN"];
     
     // wait for the done callback to finish
     double timeout = JSValueToNumber(scribeEngine.context, 
-      [scribeEngine.jsCocoa evalJSString: @"UnitTest.timeout"], NULL
+      [scribeEngine.jsc evalJSString: @"UnitTest.timeout"], NULL
     );
 
     double end = ((double)(int)time(NULL)) + timeout;
     BOOL timeExpired = NO;
-    while (![scribeEngine.jsCocoa toBool:
-    [scribeEngine.jsCocoa evalJSString: @"this.killed"]] && !timeExpired) {
-      NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-      // spin the Cocoa run loop while the test executes
-      // this works really well,wtf
-      NSEvent *event =
-          [NSApp
-              nextEventMatchingMask:NSAnyEventMask
-              untilDate: [[NSDate date] dateByAddingTimeInterval: 0.1]
-              inMode:NSDefaultRunLoopMode
-              dequeue:YES];
-      [NSApp sendEvent:event];
-      [NSApp updateWindows];
-
-      [pool release];
+    while (![scribeEngine.jsc toBool:
+      [scribeEngine.jsc evalJSString: @"this.killed"]] && !timeExpired) {
+      [ScribeEngine spin: 1];
       timeExpired = ((double)(int)time(NULL) > end);
     }
-
     if (timeExpired) {
       ReportSpecFailure(specName, [NSString stringWithFormat:
         @"Time expired (%.1f seconds) while running spec.", timeout
       ]);
     } else {
       if (hasError(scribeEngine)) {
-        JSValueRef err = [scribeEngine.jsCocoa evalJSString: @"this.ERROR"];
-        NSString *errStr = [scribeEngine.jsCocoa toString: err];
+        JSValueRef err = [scribeEngine.jsc evalJSString: @"this.ERROR"];
+        NSString *errStr = [scribeEngine.jsc toString: err];
         ReportSpecFailure(specName, errStr);
       } else {
         ReportSpecSuccess(specName);

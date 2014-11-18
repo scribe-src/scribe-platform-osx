@@ -64,11 +64,12 @@ UnitTest("after calling on('x',fn), off('x',fn), trigger('x') does not fire the 
   AssertFalse(agent.called());
 });
 
+var x = null
 UnitTest("the 'close' event is fired on close", function(cb) {
-  var win = buildWindow();
-  win.show();
-  win.on('close', cb);
-  win.close();
+  x = buildWindow();
+  x.show();
+  // win.on('close', cb);
+  // win.close();
 });
 
 UnitTest("the 'move' event is fired on move", function(cb){
