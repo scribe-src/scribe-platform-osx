@@ -91,18 +91,21 @@ debug:
 	gdb $(OUT_FILE)
 
 test: init
-	NSZombieEnabled=1 $(CC) $(CFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
+	$(CC) -g $(CFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
 	  $(INCLUDES) $(TEST_INC) -o $(OUT_TEST) \
 	  -D TEST_ENV
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
+	export NSZombieEnabled=YES
 	$(OUT_TEST)
 
 test-travis: init
-	NSZombieEnabled=1 $(CC) $(TRAVISFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
+	$(CC) -g $(TRAVISFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
 	  $(INCLUDES) $(TEST_INC) -o $(OUT_TEST) \
 	  -D TEST_ENV
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"
+	export NSZombieEnabled=YES
 	$(OUT_TEST)
 
 test-run:
-	NSZombieEnabled=1 $(OUT_TEST)
+	export NSZombieEnabled=YES
+	$(OUT_TEST)

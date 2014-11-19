@@ -1,4 +1,5 @@
 #import "AppDelegate.h"
+#import "JSDebugConsole.h"
 
 // TODO DRY this w/ ScribeWindow.m
 extern int osxStart __asm("section$start$__DATA$__osxjs");
@@ -14,6 +15,16 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
   @try {
     [self buildJSContext];
     [self readInfoPlist];
+
+    if ([[NSProcessInfo processInfo].arguments count] > 1 &&
+      [[[NSProcessInfo processInfo].arguments objectAtIndex: 1]
+      isEqual: @"console"]) {
+
+      JSDebugConsole *console = [[JSDebugConsole alloc] initWithJSCocoa: engine.jsc];
+      [console start];
+      [console release];
+    }
+
     [self loadMainJS];
   } @catch (NSException *e) {
     NSLog(@"Error occurred during initialization: %@", e);
@@ -31,7 +42,7 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
 
   if (osxStart) {
     NSString *js = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
-    [engine.jsCocoa evalJSString: js];
+    [engine.jsc evalJSString: js];
   }
 }
 
@@ -89,13 +100,13 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
     js = [NSString stringWithFormat:
       @"var err;try{(function(){%@})();}catch(e){err = e};err;", js];
 
-    JSValueRef jsErr = [engine.jsCocoa evalJSString: js];
+    JSValueRef jsErr = [engine.jsc evalJSString: js];
 
     // Check and bubble any JS errors as objc Exceptions
     if (!JSValueIsUndefined(self.engine.context, jsErr)) {
       [NSException raise: @"MainJS Runtime Exception" format:
         @"An error occurred trying to execute the MainJS File: %@\n\n%@",
-        jsPath, [self.engine.jsCocoa toString: jsErr]
+        jsPath, [self.engine.jsc toString: jsErr]
       ];
     }
   } else {
