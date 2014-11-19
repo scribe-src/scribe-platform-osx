@@ -13,6 +13,8 @@ BOOL hasError(ScribeEngine *engine) {
 }
 
 void runJSTest() {
+  NSAutoreleasePool *bigPool = [[NSAutoreleasePool alloc] init];
+
   NSString *path = [jsTests lastObject];
   path = [NSString stringWithFormat: @"./test/%@", path];
 
@@ -47,10 +49,9 @@ void runJSTest() {
 
   while ([scribeEngine.jsc toBool:
     [scribeEngine.jsc evalJSString: @"UnitTest.hasNext"]]) {
-    [ScribeEngine spin: 1];
+
 
     [scribeEngine.jsc evalJSString: @"this.killed=false;"];
-    NSAutoreleasePool *bigPool = [[NSAutoreleasePool alloc] init];
     NSString *specName = [scribeEngine.jsc objectWithName: @"UnitTest.nextName"];
 
     [scribeEngine.jsc callFunction: @"RUN"];
@@ -64,7 +65,7 @@ void runJSTest() {
     BOOL timeExpired = NO;
     while (![scribeEngine.jsc toBool:
       [scribeEngine.jsc evalJSString: @"this.killed"]] && !timeExpired) {
-      [ScribeEngine spin: 1];
+      [ScribeEngine spin: 1000];
       timeExpired = ((double)(int)time(NULL) > end);
     }
     if (timeExpired) {
@@ -81,10 +82,10 @@ void runJSTest() {
       }
     }
 
-    [bigPool release];
   }
 
   [scribeEngine release];
+  [bigPool drain];
 
   Assert(true);
 }
