@@ -35,6 +35,10 @@ ENGINE_JS=$(ENGINE_SRC)/engine.js
 OSXJS=./src/Scribe.OSX.js
 APIJS_TMP=$(TMP_DIR)/APITMP.js
 OSXJS_TMP=$(TMP_DIR)/OSXTMP.js
+DEBUG_FLAG=-g
+
+# Uncomment the below line for verbose output in tests:
+#DEBUG_FLAG=-g -DDEBUG
 
 # Needed for linking
 ADD_DATA = -sectcreate __DATA __scribejs $(APIJS_TMP) \
@@ -50,7 +54,7 @@ SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) \
 CFLAGS=-lobjc -lffi $(FRAMEWORKS) -fPIE $(ADD_DATA) \
   -mmacosx-version-min=10.5 -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap \
   -lpthread
-TRAVISFLAGS=-lobjc -lffi $(FRAMEWORKS) -fPIE \
+TRAVISFLAGS=-lobjc -lffi $(FRAMEWORKS) -fPIE $(DEBUG_FLAG) \
 	$(ADD_DATA) -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap -lpthread
 
 # Ensure that the `test` and `clean` targets always get run
@@ -91,7 +95,7 @@ debug:
 	gdb $(OUT_FILE)
 
 test: init
-	$(CC) -g $(CFLAGS) $(TEST_FILES) $(SRC_FOR_TEST) \
+	$(CC) -g $(CFLAGS) $(DEBUG_FLAG) $(TEST_FILES) $(SRC_FOR_TEST) \
 	  $(INCLUDES) $(TEST_INC) -o $(OUT_TEST) \
 	  -D TEST_ENV
 	@printf "\033[0;32;40mCompiled successfully\033[0m: $(OUT_TEST)\n"

@@ -99,7 +99,7 @@ ScribeWindow *lastInstance;
     contextMenuItemsForElement: (NSDictionary *) element
     defaultMenuItems: (NSArray *) defaultMenuItems {
 
-    NSLog(@"%@", element);
+    SCRIBELOG(@"%@", element);
     if ([defaultMenuItems count] == 1) {
       // remove the default "Reload option"
       return nil;
@@ -198,8 +198,8 @@ ScribeWindow *lastInstance;
   }
 
   if (parentEngine && parentWindowIndex != -1) {
-    NSLog(@"%d", parentWindowIndex);
-    NSLog(@"Trigger Event: %@ %d", event);
+    SCRIBELOG(@"%d", parentWindowIndex);
+    SCRIBELOG(@"Trigger Event: %@ %d", event);
     void (^refTrigger)() = ^{
       [parentEngine.jsc evalJSString: [NSString stringWithFormat:
         @"setTimeout(function(){Scribe.Window.instances[%d] && Scribe.Window.instances[\
@@ -297,7 +297,7 @@ ScribeWindow *lastInstance;
 // }
 
 - (void) dealloc {
-  NSLog(@"Deallocating Window.");
+  SCRIBELOG(@"Deallocating Window.");
   if (parentWindowIndex != -1 && parentEngine) {
     [parentEngine.jsc evalJSString: [NSString stringWithFormat:
       @"Scribe.Window.instances[%d]._nativeWindowObject=null;",
@@ -309,7 +309,7 @@ ScribeWindow *lastInstance;
   [scribeEngine release], scribeEngine = nil;
   [parentEngine release], parentEngine = nil;
   if (lastInstance == self) lastInstance = NULL;
-  NSLog(@"Super dealloc.");
+  SCRIBELOG(@"Super dealloc.");
   [super dealloc];
 }
 
