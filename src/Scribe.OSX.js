@@ -69,7 +69,6 @@ Scribe.Window.prototype._hide = function() {
 Scribe.Window.prototype._close = function() {
   this.nativeWindowObject.close;
   this._nativeWindowObject = null;
-  Scribe.Window.instances[this.instanceIndex] = null;
   this._isVisible = false;
 }
 

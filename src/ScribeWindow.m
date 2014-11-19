@@ -183,7 +183,6 @@ ScribeWindow *lastInstance;
 }
 
 - (void) triggerEvent: (NSString *)event {
-  NSLog(@"Trigger Event: %@", event);
   if (scribeEngine) {
     void (^selfTrigger)() = ^{
       [scribeEngine.jsc evalJSString: [NSString stringWithFormat:
@@ -200,6 +199,7 @@ ScribeWindow *lastInstance;
 
   if (parentEngine && parentWindowIndex != -1) {
     NSLog(@"%d", parentWindowIndex);
+    NSLog(@"Trigger Event: %@ %d", event);
     void (^refTrigger)() = ^{
       [parentEngine.jsc evalJSString: [NSString stringWithFormat:
         @"setTimeout(function(){Scribe.Window.instances[%d] && Scribe.Window.instances[\
@@ -300,7 +300,7 @@ ScribeWindow *lastInstance;
   NSLog(@"Deallocating Window.");
   if (parentWindowIndex != -1 && parentEngine) {
     [parentEngine.jsc evalJSString: [NSString stringWithFormat:
-      @"Scribe.Window.instances[%d]=null;",
+      @"Scribe.Window.instances[%d]._nativeWindowObject=null;",
       parentWindowIndex
     ]];
   }
