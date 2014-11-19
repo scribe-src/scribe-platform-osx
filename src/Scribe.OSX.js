@@ -89,6 +89,9 @@ Scribe.Window.prototype._navigateToURL = function(URL) {
 }
 
 Scribe.Window.prototype._getNativeWindowObject = function() {
+  if (!this._nativeWindowObject) {
+    throw new Error("Method called on dead Scribe.Window");
+  }
   return this._nativeWindowObject;
 }
 

@@ -4,6 +4,9 @@
 // test harness.
 
 function buildWindow(opts) {
+  OSX.NSApplication.sharedApplication.setActivationPolicy(
+    OSX.NSApplicationActivationPolicyRegular
+  );
   var defaults = {
     center: true,
     width: 800,
