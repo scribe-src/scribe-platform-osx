@@ -182,12 +182,6 @@ ScribeWindow *lastInstance;
   return YES;
 }
 
-- (void) close {
-  NSLog(@"Closed.");
-  [super close];
-  [self release];
-}
-
 - (void) triggerEvent: (NSString *)event {
   NSLog(@"Trigger Event: %@", event);
   if (scribeEngine) {

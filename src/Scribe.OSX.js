@@ -67,10 +67,6 @@ Scribe.Window.prototype._hide = function() {
 }
 
 Scribe.Window.prototype._close = function() {
-  // if (this.nativeWindowObject.releaseWhenClosed) {
-  // JSC GC will release the boxed object
-  this.nativeWindowObject.retain;
-  // }
   this.nativeWindowObject.close;
   this._nativeWindowObject = null;
   Scribe.Window.instances[this.instanceIndex] = null;
