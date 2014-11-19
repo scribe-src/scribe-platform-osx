@@ -33,7 +33,6 @@ UnitTest("width getter returns the width", function(){
   var win = buildWindow();
   var width = win.width;
   win.close();
-  // Scribe.log("NOW WERE RELEASEING");
   AssertEqual(width, 800);
 });
 
