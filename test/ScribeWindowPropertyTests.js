@@ -1,34 +1,3 @@
-// TODO:
-// This should have been written in Jasmine, so that I can
-// reuse them across projects without having to re-port the
-// test harness.
-
-function buildWindow(opts) {
-  OSX.NSApplication.sharedApplication.setActivationPolicy(
-    OSX.NSApplicationActivationPolicyRegular
-  );
-  var defaults = {
-    center: true,
-    width: 800,
-    height: 900,
-    top: 2,
-    left: 1,
-    chrome: false
-  };
-  opts = opts || {};
-  for (var key in opts) {
-    defaults[key] = opts[key];
-  }
-  return Scribe.Window.create(defaults);
-}
-
-function spy(retVal) {
-  var called = 0;
-  var me = function() { called++; return retVal }
-  me.called = function() { return called; };
-  return me;
-}
-
 UnitTest("width getter returns the width", function(){
   var win = buildWindow();
   var width = win.width;

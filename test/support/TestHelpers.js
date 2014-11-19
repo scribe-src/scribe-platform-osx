@@ -1,3 +1,34 @@
+function buildWindow(opts) {
+  OSX.NSApplication.sharedApplication.setActivationPolicy(
+    OSX.NSApplicationActivationPolicyRegular
+  );
+  var defaults = {
+    center: true,
+    width: 800,
+    height: 900,
+    top: 2,
+    left: 1,
+    chrome: false
+  };
+  opts = opts || {};
+  for (var key in opts) {
+    defaults[key] = opts[key];
+  }
+  return Scribe.Window.create(defaults);
+}
+
+function spy(retVal) {
+  var called = 0;
+  var me = function() { called++; return retVal }
+  me.called = function() { return called; };
+  return me;
+}
+
+function sleep(s) {
+  var t = (new Date()).getTime()+1000*s; while((new Date()).getTime() < t);
+}
+
+
 function O2S(obj) {
   if (obj === null) {
     return "null";
