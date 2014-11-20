@@ -244,6 +244,44 @@ Scribe.Screen.prototype._getNativeScreenObject = function() {
   return this._nativeScreenObject;
 };
 
+// Add a native hook to window.open():
+(function() {
+
+  function params(searchString) {
+    var paramValue = '';
+    var params = searchString.split('&');
+    var retObject = {};
+    for (i = 0; i < params.length; i++) {
+      var paramPair = params[i];
+      var eqlIndex = paramPair.indexOf('=');
+      var paramName = paramPair.substring(0, eqlIndex);
+      retObject[paramName] = unescape(paramPair.substring(eqlIndex+1));
+    }
+    return retObject;
+  }
+
+  var open = window.open;
+  window.open = function ScribeOpen(url, name, opts) {
+    name = name || '';
+    opts = opts || {};
+    // Ensure this is not a sibling reference like _self, _parent,
+    // _opener, or _top
+    if (name === '_self' || (name.charAt(0) === '_' &&
+        window[name.slice(1)] instanceof Window)) {
+
+      open.apply(window[name.slice(1)], arguments)
+    } else {
+      if (typeof opts === 'string') {
+        opts = params(opts);
+      }
+      var win = new Scribe.Window(opts);
+      win.show();
+      return win;
+    }
+  }
+
+})();
+
 // Polyfill for alert()
 this.alert = function $alert(msg) {
   // join all the args together
