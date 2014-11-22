@@ -247,6 +247,7 @@ Scribe.Screen.prototype._getNativeScreenObject = function() {
 // Add a native hook to window.open():
 (function() {
 
+  // keep a helper inside our closure
   function params(searchString) {
     var paramValue = '';
     var params = searchString.split('&');
@@ -260,16 +261,19 @@ Scribe.Screen.prototype._getNativeScreenObject = function() {
     return retObject;
   }
 
-  var open = window.open;
-  window.open = function ScribeOpen(url, name, opts) {
+  // hold a reference to the native window.open() function:
+  var openOriginal = window.open;
+
+  // shim the global window.open() function:
+  window.open = function ScribeWindowOpen(url, name, opts) {
     name = name || '';
     opts = opts || {};
     // Ensure this is not a sibling reference like _self, _parent,
     // _opener, or _top
     if (name === '_self' || (name.charAt(0) === '_' &&
         window[name.slice(1)] instanceof Window)) {
-
-      open.apply(window[name.slice(1)], arguments)
+      // run the original open() method on any arguments passed
+      openOriginal.apply(window, arguments)
     } else {
       if (typeof opts === 'string') {
         opts = params(opts);

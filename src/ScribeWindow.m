@@ -309,7 +309,6 @@ ScribeWindow *lastInstance;
   [scribeEngine release], scribeEngine = nil;
   [parentEngine release], parentEngine = nil;
   if (lastInstance == self) lastInstance = NULL;
-  SCRIBELOG(@"Super dealloc.");
   [super dealloc];
 }
 
