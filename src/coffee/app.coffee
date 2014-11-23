@@ -19,8 +19,11 @@ Scribe.App::_getCwd = ->
 Scribe.App::_getArguments = ->
   [].slice.call(OSX.NSProcessInfo.processInfo.arguments, 1)
 
-Scribe.App::_getEnv = ->
-  OSX.NSProcessInfo.processInfo.environment
+Scribe.App::_getEnv = (varName) ->
+  OSX.NSProcessInfo.processInfo.environment[varName]?.toString() ? null
+
+Scribe.App::_setEnv = (varName, value) ->
+  OSX.ScribeEngine['setEnvVar:toValue:'](varName, value)
 
 Scribe.App::_exit = (status) ->
   OSX.NSApp.terminate(null)
