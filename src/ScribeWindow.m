@@ -114,7 +114,7 @@ ScribeWindow *lastInstance;
 //
 
 // Add injection hook for injecting ScribeEngine scribe global
-- (void) webView: (WebView *) webView
+- (void) webView: (WebView *) wv
          didCreateJavaScriptContext: (JSContext *) context
          forFrame: (WebFrame *) frame {
 
@@ -198,12 +198,12 @@ ScribeWindow *lastInstance;
   }
 
   if (parentEngine && parentWindowIndex != -1) {
-    SCRIBELOG(@"%d", parentWindowIndex);
-    SCRIBELOG(@"Trigger Event: %@ %d", event);
+    SCRIBELOG(@"%ld", (long)parentWindowIndex);
+    SCRIBELOG(@"Trigger Event: %@", event);
     void (^refTrigger)() = ^{
       [parentEngine.jsc evalJSString: [NSString stringWithFormat:
-        @"setTimeout(function(){Scribe.Window.instances[%d] && Scribe.Window.instances[\
-          %d].trigger('%@');},0)", parentWindowIndex, parentWindowIndex, event
+        @"setTimeout(function(){Scribe.Window.instances[%ld] && Scribe.Window.instances[\
+          %ld].trigger('%@');},0)", (long)parentWindowIndex, (long)parentWindowIndex, event
       ]];
     };
 
@@ -300,8 +300,8 @@ ScribeWindow *lastInstance;
   SCRIBELOG(@"Deallocating Window.");
   if (parentWindowIndex != -1 && parentEngine) {
     [parentEngine.jsc evalJSString: [NSString stringWithFormat:
-      @"Scribe.Window.instances[%d]._nativeObject=null;",
-      parentWindowIndex
+      @"Scribe.Window.instances[%ld]._nativeObject=null;",
+      (long)parentWindowIndex
     ]];
   }
 
