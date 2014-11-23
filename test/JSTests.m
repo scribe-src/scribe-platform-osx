@@ -39,7 +39,22 @@ void runJSTest() {
 
   if (osxStart) {
     NSString *jsOSX = [NSString stringWithCString: (char*)&osxStart encoding: NSUTF8StringEncoding];
+
+    NSString *myErr;
+    if (![scribeEngine.jsc isSyntaxValid: jsOSX error: &myErr]) {
+      [NSException raise: @"Syntax error in JS:" format:@"%@", myErr];
+    }
+
+    jsOSX = [NSString stringWithFormat: @"this.ERROR=null;try{%@}catch(e){this.ERROR=e}", jsOSX];
     [scribeEngine.jsc evalJSString: jsOSX];
+    if (hasError(scribeEngine)) {
+      JSValueRef err = [scribeEngine.jsc evalJSString: @"this.ERROR"];
+      NSString *errStr = [scribeEngine.jsc toString: err];   
+      [NSException raise: @"Error loading JS file" format:@"%@", errStr];
+    }
+    [scribeEngine.jsc evalJSString: @"delete this.ERROR"];
+  } else {
+    [NSException raise: @"+osxStart+ macho segment not found, exiting." format:@""];
   }
 
   NSString *helpersjs = [NSString
@@ -56,6 +71,8 @@ void runJSTest() {
     NSString *errStr = [scribeEngine.jsc toString: err];   
     [NSException raise: @"Error loading JS file" format:@"%@", errStr];
   }
+
+  [scribeEngine.jsc evalJSString: @"delete this.ERROR"];
 
   while ([scribeEngine.jsc toBool:
     [scribeEngine.jsc evalJSString: @"UnitTest.hasNext"]]) {
@@ -85,6 +102,7 @@ void runJSTest() {
     } else {
       if (hasError(scribeEngine)) {
         JSValueRef err = [scribeEngine.jsc evalJSString: @"this.ERROR"];
+        [scribeEngine.jsc evalJSString: @"delete this.ERROR"];
         NSString *errStr = [scribeEngine.jsc toString: err];
         ReportSpecFailure(specName, errStr);
       } else {
