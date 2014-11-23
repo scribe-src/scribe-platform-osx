@@ -18,6 +18,8 @@ Dependencies are tracked as git submodules, you can initialize and fetch them wi
 
 #### Tests
 
+Tests are written with the [objc-unit](https://github.com/scribe-src/objc-unit) test framework. To run tests:
+
     $ make test
 
 #### License
