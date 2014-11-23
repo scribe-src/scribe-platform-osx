@@ -96,7 +96,7 @@ Scribe.Window::_setLeft = (x) ->
 
 Scribe.Window::_getTop = ->
   height = OSX.NSScreen.mainScreen.frame.size.height
-  height - this.nativeObject.frame.origin.y
+  height - @nativeObject.frame.origin.y
 
 Scribe.Window::_setTop = (y) ->
   height = OSX.NSScreen.mainScreen.frame.size.height
@@ -109,7 +109,7 @@ Scribe.Window::_getWidth = ->
   @nativeObject.frame.size.width
 
 Scribe.Window::_setWidth = (width) ->
-  frame = this.nativeObject.frame
+  frame = @nativeObject.frame
   rect = OSX.NSMakeRect(frame.origin.x, frame.origin.y, width, frame.size.height)
   @nativeObject['setFrame:display:'](rect, true)
 
@@ -117,7 +117,7 @@ Scribe.Window::_getHeight = ->
   @nativeObject.frame.size.height
 
 Scribe.Window::_setHeight = (height) ->
-  frame = this.nativeObject.frame
+  frame = @nativeObject.frame
   rect = OSX.NSMakeRect(frame.origin.x, frame.origin.y, frame.size.width, height)
   @nativeObject['setFrame:display:'](rect, true)
 
