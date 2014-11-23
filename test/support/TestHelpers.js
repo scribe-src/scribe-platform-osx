@@ -97,6 +97,12 @@ function AssertUndefined(x) {
   }
 }
 
+function AssertNull(x) {
+  if (x !== null) {
+    throw new Error("Expected " + O2S(x) + " to be null.");
+  }
+}
+
 // From: http://www.mattsnider.com/parsing-javascript-function-argument-names/
 function getParamNames(fn) {
   var funStr = fn.toString();

@@ -3,10 +3,12 @@
 #
 
 Scribe.App::_getName = ->
-  "LOLZ!"
+  lookup = (name) ->
+    OSX.NSBundle.mainBundle.objectForInfoDictionaryKey(name)?.toString()
+  lookup('CFBundleDisplayName') ? lookup('CFBundleName') ? null
 
 Scribe.App::_getIdentifier = ->
-  "LOLZ"
+  OSX.NSBundle.mainBundle.bundleIdentifier?.toString() ? null
 
 Scribe.App::_getExePath = ->
   OSX.NSProcessInfo.processInfo.arguments[0].toString()
