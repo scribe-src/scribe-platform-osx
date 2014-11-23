@@ -60,6 +60,11 @@ TRAVISFLAGS=-lobjc -lffi $(FRAMEWORKS) -fPIE $(DEBUG_FLAG) \
 # Ensure that the `test` and `clean` targets always get run
 .PHONY: test clean init open run debug test-run test-travis
 
+# Updates the dependencies in ./deps to the latest on master
+bump-deps:
+	cd ./deps/scribe-engine-jsc && git pull --ff origin master
+	cd ./deps/objc-unit && git pull --ff origin master
+
 init:
 	# Prepare some data for inserting into an macho segment
 	make -C $(SCRIBE_API_DIR) dist

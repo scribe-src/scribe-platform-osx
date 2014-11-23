@@ -1,3 +1,7 @@
+#
+# Implements a few polyfills for when a Window is not available
+#
+
 global = @
 
 # Polyfill for debugger

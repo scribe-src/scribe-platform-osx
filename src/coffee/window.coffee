@@ -1,3 +1,7 @@
+#
+# Implements the OSX-specific portions of the Scribe.Window API.
+#
+
 global = @
 
 Scribe.Window.instances = []

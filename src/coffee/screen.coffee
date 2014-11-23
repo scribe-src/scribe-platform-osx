@@ -1,3 +1,7 @@
+#
+# Implements the OSX-specific portions of the Scribe.Screen API.
+#
+
 Scribe.Screen._getAll = ->
   [].slice.call(OSX.NSScreen.screens).map (screen) ->
     new Scribe.Screen({ nativeObject: screen })
