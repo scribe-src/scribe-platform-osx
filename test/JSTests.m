@@ -5,6 +5,7 @@
 #import <JavascriptCore/JavascriptCore.h>
 
 NSMutableArray *jsTests = nil;
+extern NSString *$currentTest;
 
 extern int osxStart __asm("section$start$__DATA$__osxjs");
 
@@ -15,7 +16,16 @@ BOOL hasError(ScribeEngine *engine) {
 void runJSTest() {
   NSAutoreleasePool *bigPool = [[NSAutoreleasePool alloc] init];
 
-  NSString *path = [jsTests lastObject];
+  int idx = 0;
+  for (; idx < [jsTests count]; idx++) {
+    if ([[[jsTests objectAtIndex: idx] stringByDeletingPathExtension] isEqual: $currentTest]) break;
+  }
+  if (idx >= [jsTests count]) {
+    NSLog(@"Error: runJSTest called for %@, not found in jsTests global.", $currentTest);
+    return;
+  }
+
+  NSString *path = [jsTests objectAtIndex: idx];
   path = [NSString stringWithFormat: @"./test/%@", path];
 
   NSString *js = [NSString
@@ -23,7 +33,7 @@ void runJSTest() {
                     encoding: NSUTF8StringEncoding
                        error: nil];
 
-  [jsTests removeLastObject];
+  [jsTests removeObjectAtIndex: idx];
 
   ScribeEngine *scribeEngine = [ScribeEngine new];
 
@@ -104,9 +114,8 @@ SUITE_INIT
   for (NSString *testName in jsTests) {
     testName = [testName stringByDeletingPathExtension];
     NSCharacterSet *charactersToRemove = [[NSCharacterSet alphanumericCharacterSet] invertedSet];
-    NSString *safeName = [[testName componentsSeparatedByCharactersInSet:charactersToRemove] componentsJoinedByString:@""];
-    Class ourClass = object_getClass([JSTests class]);
-    class_addMethod(ourClass, NSSelectorFromString(safeName), (IMP)runJSTest, "v@:");
+    NSString *safeName = [[testName componentsSeparatedByCharactersInSet: charactersToRemove] componentsJoinedByString: @""];
+    class_addMethod(object_getClass([JSTests class]), NSSelectorFromString(safeName), (IMP)runJSTest, "v@:");
   }
 END_SUITE_INIT
 
