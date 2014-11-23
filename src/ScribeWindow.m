@@ -300,7 +300,7 @@ ScribeWindow *lastInstance;
   SCRIBELOG(@"Deallocating Window.");
   if (parentWindowIndex != -1 && parentEngine) {
     [parentEngine.jsc evalJSString: [NSString stringWithFormat:
-      @"Scribe.Window.instances[%d]._nativeWindowObject=null;",
+      @"Scribe.Window.instances[%d]._nativeObject=null;",
       parentWindowIndex
     ]];
   }

@@ -51,9 +51,9 @@ UnitTest("(top, left) changes after calling center():", function(){
   win.close();
 });
 
-UnitTest("nativeWindowObject is defined", function(){
+UnitTest("nativeObject is defined", function(){
   var win = buildWindow();
-  var obj = win.nativeWindowObject;
+  var obj = win.nativeObject;
   win.close(); win = null;
   AssertDefined(obj);
 });

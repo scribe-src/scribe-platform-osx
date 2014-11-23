@@ -27,8 +27,8 @@ Scribe.Window.prototype._createWindow = function(opts) {
   if (opts.closable)   styleMask |= OSX.NSClosableWindowMask;
   if (opts.fullscreen) styleMask |= OSX.NSFullScreenWindowMask;
 
-  // create the nativeWindowObject
-  this._nativeWindowObject = OSX.ScribeWindow.alloc['initWithContentRect:styleMask:backing:defer:'](
+  // create the nativeObject
+  this._nativeObject = OSX.ScribeWindow.alloc['initWithContentRect:styleMask:backing:defer:'](
     rect,
     styleMask,
     OSX.NSBackingStoreBuffered,
@@ -36,9 +36,9 @@ Scribe.Window.prototype._createWindow = function(opts) {
   );
 
   // tell the window about its parent context (this)
-  this.nativeWindowObject.setParentEngine(Scribe.Engine._current);
+  this.nativeObject.setParentEngine(Scribe.Engine._current);
   this.instanceIndex = Scribe.Window.instances.length;
-  this.nativeWindowObject.setParentWindowIndex(this.instanceIndex);
+  this.nativeObject.setParentWindowIndex(this.instanceIndex);
   Scribe.Window.instances.push(this);
 
   // configure some settings in the ScribeWindow's WebView
@@ -51,33 +51,33 @@ Scribe.Window.prototype._createWindow = function(opts) {
 }
 
 Scribe.Window.prototype._center = function() {
-  this.nativeWindowObject.center;
+  this.nativeObject.center;
 }
 
 Scribe.Window.prototype._show = function() {
-  this.nativeWindowObject.makeKeyAndOrderFront({});
+  this.nativeObject.makeKeyAndOrderFront({});
   OSX.NSApp.activateIgnoringOtherApps(true);
   this._isVisible = true;
 }
 
 Scribe.Window.prototype._hide = function() {
-  this.nativeWindowObject.orderOut({});
+  this.nativeObject.orderOut({});
   this._isVisible = false;
   this.trigger('blur');
 }
 
 Scribe.Window.prototype._close = function() {
-  this.nativeWindowObject.close;
-  this._nativeWindowObject = null;
+  this.nativeObject.close;
+  this._nativeObject = null;
   this._isVisible = false;
 }
 
 Scribe.Window.prototype._minimize = function() {
-  this.nativeWindowObject.miniaturize(null);
+  this.nativeObject.miniaturize(null);
 }
 
 Scribe.Window.prototype._deminimize = function() {
-  this.nativeWindowObject.deminiaturize(null);
+  this.nativeObject.deminiaturize(null);
 }
 
 Scribe.Window.prototype._getVisible = function() {
@@ -85,22 +85,22 @@ Scribe.Window.prototype._getVisible = function() {
 }
 
 Scribe.Window.prototype._navigateToURL = function(URL) {
-  this.nativeWindowObject.navigateToURL(URL);
+  this.nativeObject.navigateToURL(URL);
 }
 
-Scribe.Window.prototype._getNativeWindowObject = function() {
-  if (!this._nativeWindowObject) {
+Scribe.Window.prototype._getNativeObject = function() {
+  if (!this._nativeObject) {
     throw new Error("Method called on dead Scribe.Window");
   }
-  return this._nativeWindowObject;
+  return this._nativeObject;
 }
 
 Scribe.Window.prototype._getLeft = function() {
-  return this.nativeWindowObject.frame.origin.x;
+  return this.nativeObject.frame.origin.x;
 }
 
 Scribe.Window.prototype._setLeft = function(x) {
-  var frame = this.nativeWindowObject.frame;
+  var frame = this.nativeObject.frame;
   var rect = OSX.NSMakeRect(
     x,
     frame.origin.y,
@@ -108,18 +108,18 @@ Scribe.Window.prototype._setLeft = function(x) {
     frame.size.height
   );
 
-  this.nativeWindowObject['setFrame:display:'](rect, true);
+  this.nativeObject['setFrame:display:'](rect, true);
 }
 
 Scribe.Window.prototype._getTop = function() {
   var height = OSX.NSScreen.mainScreen.frame.size.height;
-  return height - this.nativeWindowObject.frame.origin.y;
+  return height - this.nativeObject.frame.origin.y;
 }
 
 Scribe.Window.prototype._setTop = function(y) {
   var height = OSX.NSScreen.mainScreen.frame.size.height;
   y = height - y;
-  var frame = this.nativeWindowObject.frame;
+  var frame = this.nativeObject.frame;
   var rect = OSX.NSMakeRect(
     frame.origin.x,
     y,
@@ -127,15 +127,15 @@ Scribe.Window.prototype._setTop = function(y) {
     frame.size.height
   );
 
-  this.nativeWindowObject['setFrame:display:'](rect, true);
+  this.nativeObject['setFrame:display:'](rect, true);
 }
 
 Scribe.Window.prototype._getWidth = function() {
-  return this.nativeWindowObject.frame.size.width;
+  return this.nativeObject.frame.size.width;
 }
 
 Scribe.Window.prototype._setWidth = function(width) {
-  var frame = this.nativeWindowObject.frame;
+  var frame = this.nativeObject.frame;
   var rect = OSX.NSMakeRect(
     frame.origin.x,
     frame.origin.y,
@@ -143,15 +143,15 @@ Scribe.Window.prototype._setWidth = function(width) {
     frame.size.height
   );
 
-  this.nativeWindowObject['setFrame:display:'](rect, true);
+  this.nativeObject['setFrame:display:'](rect, true);
 }
 
 Scribe.Window.prototype._getHeight = function() {
-  return this.nativeWindowObject.frame.size.height;
+  return this.nativeObject.frame.size.height;
 }
 
 Scribe.Window.prototype._setHeight = function(height) {
-  var frame = this.nativeWindowObject.frame;
+  var frame = this.nativeObject.frame;
   var rect = OSX.NSMakeRect(
     frame.origin.x,
     frame.origin.y,
@@ -159,89 +159,89 @@ Scribe.Window.prototype._setHeight = function(height) {
     height
   );
 
-  this.nativeWindowObject['setFrame:display:'](rect, true);
+  this.nativeObject['setFrame:display:'](rect, true);
 }
 
 Scribe.Window.prototype._getFullscreen = function() {
-  return ((this.nativeWindowObject.styleMask & OSX.NSFullScreenWindowMask) != 0);
+  return ((this.nativeObject.styleMask & OSX.NSFullScreenWindowMask) != 0);
 }
 
 Scribe.Window.prototype._setFullscreen = function(fullscreen) {
-  this.nativeWindowObject.setCollectionBehavior(OSX.NSWindowCollectionBehaviorFullScreenPrimary);
+  this.nativeObject.setCollectionBehavior(OSX.NSWindowCollectionBehaviorFullScreenPrimary);
   if (this.fullscreen != fullscreen) {
-    this.nativeWindowObject.toggleFullScreen(this.nativeWindowObject);
+    this.nativeObject.toggleFullScreen(this.nativeObject);
   }
 }
 
 Scribe.Window.prototype._getResizable = function() {
-  return ((this.nativeWindowObject.styleMask & OSX.NSResizableWindowMask) != 0);
+  return ((this.nativeObject.styleMask & OSX.NSResizableWindowMask) != 0);
 }
 
 Scribe.Window.prototype._setResizable = function(resizable) {
   var newMask;
   if (resizable){
-    var newMask = this.nativeWindowObject.styleMask | OSX.NSResizableWindowMask;
+    var newMask = this.nativeObject.styleMask | OSX.NSResizableWindowMask;
   } else {
-    var newMask = this.nativeWindowObject.styleMask & ~OSX.NSResizableWindowMask;
+    var newMask = this.nativeObject.styleMask & ~OSX.NSResizableWindowMask;
   }
-  this.nativeWindowObject.setStyleMask(newMask);
+  this.nativeObject.setStyleMask(newMask);
 }
 
 Scribe.Window.prototype._getClosable = function() {
-  return ((this.nativeWindowObject.styleMask & OSX.NSClosableWindowMask) != 0);
+  return ((this.nativeObject.styleMask & OSX.NSClosableWindowMask) != 0);
 }
 
 Scribe.Window.prototype._setClosable = function(closable) {
   var newMask;
   if (closable){
-    var newMask = this.nativeWindowObject.styleMask | OSX.NSClosableWindowMask;
+    var newMask = this.nativeObject.styleMask | OSX.NSClosableWindowMask;
   } else {
-    var newMask = this.nativeWindowObject.styleMask & ~OSX.NSClosableWindowMask;
+    var newMask = this.nativeObject.styleMask & ~OSX.NSClosableWindowMask;
   }
-  this.nativeWindowObject.setStyleMask(newMask);
+  this.nativeObject.setStyleMask(newMask);
 }
 
 Scribe.Window.prototype._getSameOriginPolicy = function() {
-  return this.nativeWindowObject.webView.preferences.isWebSecurityEnabled;
+  return this.nativeObject.webView.preferences.isWebSecurityEnabled;
 }
 
 Scribe.Window.prototype._setSameOriginPolicy = function(sop) {
-  this.nativeWindowObject.webView.preferences.setWebSecurityEnabled(sop);
+  this.nativeObject.webView.preferences.setWebSecurityEnabled(sop);
 }
 
 Scribe.Window.prototype._getTitle = function() {
-  return this.nativeWindowObject.title.toString();
+  return this.nativeObject.title.toString();
 }
 
 Scribe.Window.prototype._setTitle = function(title) {
-  this.nativeWindowObject.setTitle(title);
+  this.nativeObject.setTitle(title);
 }
 
 
 // Assign the Scribe.Window.current static class variable
 if (OSX.ScribeWindow.lastInstance) {
   Scribe.Window.current = new Scribe.Window({
-    nativeWindowObject: OSX.ScribeWindow.lastInstance
+    nativeObject: OSX.ScribeWindow.lastInstance
   });
 }
 
 
 Scribe.Screen._getAll = function() {
   return [].slice.call(OSX.NSScreen.screens).map(function(screen) {
-    return new Scribe.Screen({ nativeScreenObject: screen });
+    return new Scribe.Screen({ nativeObject: screen });
   });
 };
 
 Scribe.Screen.prototype._getWidth = function() {
-  return this.nativeScreenObject.frame.size.width;
+  return this.nativeObject.frame.size.width;
 };
 
 Scribe.Screen.prototype._getHeight = function() {
-  return this.nativeScreenObject.frame.size.height;
+  return this.nativeObject.frame.size.height;
 };
 
-Scribe.Screen.prototype._getNativeScreenObject = function() {
-  return this._nativeScreenObject;
+Scribe.Screen.prototype._getNativeObject = function() {
+  return this._nativeObject;
 };
 
 // Add a native hook to window.open():
@@ -296,9 +296,9 @@ this.alert = function $alert(msg) {
 
   if (Scribe.Window.current) {
     alert['beginSheetModalForWindow:completionHandler:'](
-      Scribe.Window.current.nativeWindowObject, null
+      Scribe.Window.current.nativeObject, null
     )
-    while (Scribe.Window.current.nativeWindowObject.sheets.count > 0) {
+    while (Scribe.Window.current.nativeObject.sheets.count > 0) {
       OSX.ScribeEngine.spin(1);
     }
   } else {
@@ -315,7 +315,7 @@ this.confirm = function $confirm(msg) {
   var retVal = false;
 
   if (Scribe.Window.current) {
-    retVal = !!Scribe.Window.current.nativeWindowObject.confirm(msg);
+    retVal = !!Scribe.Window.current.nativeObject.confirm(msg);
   } else {
     var alert = OSX.NSAlert[
       'alertWithMessageText:defaultButton:alternateButton:'+
@@ -335,7 +335,7 @@ this.prompt = function $prompt(msg) {
   var retVal = false;
 
   if (Scribe.Window.current) {
-    retVal = Scribe.Window.current.nativeWindowObject.prompt(msg);
+    retVal = Scribe.Window.current.nativeObject.prompt(msg);
   } else {
     var input = OSX.NSTextField.alloc.initWithFrame(
       OSX.NSMakeRect(0, 0, 200, 24)
