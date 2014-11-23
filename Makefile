@@ -32,7 +32,7 @@ OUT_TEST=build/run-tests
 SCRIBE_API_DIR=./deps/scribe-engine-jsc/deps/scribe-api
 APIJS=$(SCRIBE_API_DIR)/dist/dist.js
 ENGINE_JS=$(ENGINE_SRC)/engine.js
-OSXJS=./src/Scribe.OSX.js
+OSXJS=./src/js/*.js
 APIJS_TMP=$(TMP_DIR)/APITMP.js
 OSXJS_TMP=$(TMP_DIR)/OSXTMP.js
 DEBUG_FLAG=-g
@@ -66,7 +66,7 @@ init:
 	mkdir -p $(OUT_DIR)
 	cp $(APIJS) $(APIJS_TMP)
 	cat $(ENGINE_JS) >> $(APIJS_TMP)
-	cp $(OSXJS) $(OSXJS_TMP)
+	cat $(OSXJS) >> $(OSXJS_TMP)
 	printf "\x00" >> $(APIJS_TMP)
 	printf "\x00" >> $(OSXJS_TMP)
 
