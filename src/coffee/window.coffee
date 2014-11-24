@@ -38,7 +38,7 @@ Scribe.Window::_createWindow = (opts) ->
   )
 
   # tell the window about its parent context (this)
-  @nativeObject.setParentEngine(Scribe.Engine._current)
+  @nativeObject.setParentEngine(Scribe.Engine.current.nativeObject)
   @instanceIndex = Scribe.Window.instances.length
   @nativeObject.setParentWindowIndex(@instanceIndex)
   Scribe.Window.instances.push(@)

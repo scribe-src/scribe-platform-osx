@@ -35,6 +35,10 @@ UnitTest("Scribe.app.name returns null", function(){
   AssertNull(Scribe.app.name);
 });
 
+UnitTest("Scribe.app.arguments returns an Array", function(){
+  AssertEqual(Scribe.app.arguments.constructor, Array);
+});
+
 UnitTest("Scribe.app.identifier returns null", function(){
   AssertNull(Scribe.app.identifier);
 });
