@@ -47,3 +47,7 @@ UnitTest("Scribe.app.badge = 'a' does not throw an exception", function(){
   Scribe.app.badge = 'a';
   Assert(true);
 });
+UnitTest("Scribe.app.bounce() does not throw an exception", function(){
+  Scribe.app.bounce();
+  Assert(true);
+});

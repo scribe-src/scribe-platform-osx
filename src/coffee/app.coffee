@@ -31,6 +31,9 @@ Scribe.App::_setBadge = (label) ->
 Scribe.App::_getBadge = ->
   OSX.NSApp.dockTile.badgeLabel?.toString()
 
+Scribe.App::_bounce = ->
+  OSX.NSApp.requestUserAttention(OSX.NSCriticalRequest)
+
 Scribe.App::_exit = (status) ->
   OSX.NSApp.terminate(null)
 
