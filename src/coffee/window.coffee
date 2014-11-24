@@ -160,10 +160,13 @@ Scribe.Window::_setSameOriginPolicy = (sop) ->
   @nativeObject.webView.preferences.setWebSecurityEnabled(sop)
 
 Scribe.Window::_getTitle = ->
-  @nativeObject.title?.toString?()
+  @nativeObject.title?.toString?() ? null
 
 Scribe.Window::_setTitle = (title) ->
-  @nativeObject.setTitle(title)
+  @nativeObject.setTitle(title?.toString?() ? '')
+
+Scribe.Window::_getEngine = ->
+  new Scribe.Engine(nativeObject: @nativeObject.scribeEngine)
 
 # Assign the Scribe.Window.current static class variable
 if (OSX.ScribeWindow.lastInstance)

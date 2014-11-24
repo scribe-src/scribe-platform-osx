@@ -230,3 +230,17 @@ UnitTest("setting sameOriginPolicy to true works as expected", function(){
   win.close();
   Assert(sop);
 });
+
+UnitTest("engine property is truthy", function(){
+  var win = buildWindow({sameOriginPolicy: false});
+  var engine = win.engine;
+  win.close();
+  Assert(engine);
+});
+
+UnitTest("engine property returns a Scribe.Engine instance", function(){
+  var win = buildWindow({sameOriginPolicy: false});
+  var engine = win.engine;
+  win.close();
+  Assert(engine instanceof Scribe.Engine);
+});
