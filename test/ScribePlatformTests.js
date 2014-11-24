@@ -18,8 +18,12 @@ UnitTest("Scribe.platform.name is 'osx'", function(){
   AssertEqual(Scribe.platform.name, 'osx');
 });
 
-UnitTest("Scribe.platform.version is truthy", function(){
-  Assert(Scribe.platform.version);
+UnitTest("Scribe.platform.version returns a String", function(){
+  AssertEqual(typeof Scribe.platform.version, 'string');
+});
+
+UnitTest("Scribe.platform.version returns a non-empty String", function(){
+  Assert(Scribe.platform.version.length > 0);
 });
 
 UnitTest("Scribe.Platform.SUPPORTED is truthy", function(){
