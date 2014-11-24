@@ -19,6 +19,9 @@ ScribeWindow *lastInstance;
                    backing: (NSBackingStoreType) bufferingType
                      defer: (BOOL) deferCreation {
 
+  // this line prevents an error: Error (1000) creating CGSWindow
+  [[NSApplication sharedApplication] setActivationPolicy: NSApplicationActivationPolicyRegular];
+
   if (self = [super initWithContentRect: contentRect
                               styleMask: windowStyle
                                 backing: bufferingType

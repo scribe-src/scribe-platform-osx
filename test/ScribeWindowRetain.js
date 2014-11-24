@@ -1,5 +1,5 @@
 UnitTest("calling close() twice should throw a JS error", function(){
-  var win = buildWindow();
+  var win = new Scribe.Window();
   win.show();
   win.close();
   try {
