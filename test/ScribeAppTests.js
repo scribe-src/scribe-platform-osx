@@ -36,9 +36,14 @@ UnitTest("Scribe.app.name returns null", function(){
 });
 
 UnitTest("Scribe.app.arguments returns an Array", function(){
-  AssertEqual(Scribe.app.arguments.constructor, Array);
+  Assert(Scribe.app.arguments instanceof Array);
 });
 
 UnitTest("Scribe.app.identifier returns null", function(){
   AssertNull(Scribe.app.identifier);
+});
+
+UnitTest("Scribe.app.badge = 'a' does not throw an exception", function(){
+  Scribe.app.badge = 'a';
+  Assert(true);
 });

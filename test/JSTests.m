@@ -16,6 +16,9 @@ BOOL hasError(ScribeEngine *engine) {
 void runJSTest() {
   NSAutoreleasePool *bigPool = [[NSAutoreleasePool alloc] init];
 
+  // this line prevents an error: Error (1000) creating CGSWindow
+  [[NSApplication sharedApplication] setActivationPolicy: NSApplicationActivationPolicyRegular];
+
   int idx = 0;
   for (; idx < [jsTests count]; idx++) {
     if ([[[jsTests objectAtIndex: idx] stringByDeletingPathExtension] isEqual: $currentTest]) break;

@@ -12,6 +12,10 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
 // initialization is complete (when the Dock icon stops bouncing).
 // It is a part of the <NSApplicationDelegate> protocol.
 - (void) applicationDidFinishLaunching: (NSNotification *) n {
+
+  // this line prevents an error: Error (1000) creating CGSWindow
+  [[NSApplication sharedApplication] setActivationPolicy: NSApplicationActivationPolicyRegular];
+
   @try {
     [self buildJSContext];
     [self readInfoPlist];
