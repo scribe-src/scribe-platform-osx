@@ -292,34 +292,24 @@ ScribeWindow *lastInstance;
 //   }
 // }
 
-- (void) release {
-  if ([self retainCount] == 1) {
-
-    // This is a mess. Clean up after ourselves in a callback, in case
-    // we were released in a GC run.
-    void (^selfTrigger)() = ^{
-      if (parentWindowIndex != -1 && parentEngine) {
-        [parentEngine.jsc evalJSString: [NSString stringWithFormat:
-          @"Scribe.Window.instances[%ld]._nativeObject=null;",
-          (long)parentWindowIndex
-        ]];
-      }
-      [parentEngine release], parentEngine = nil;
-    };
-    dispatch_async(dispatch_get_main_queue(), selfTrigger);
-
-  }
-  [super release];
-}
-
 - (void) dealloc {
+
   SCRIBELOG(@"Deallocating Window.");
   self.delegate = nil;
   if (lastInstance == self) lastInstance = NULL;
 
+  if (parentWindowIndex != -1 && parentEngine) {
+    NSString *key = [NSString stringWithFormat:
+      @"Scribe.Window.instances[%ld]._nativeObject=null;",
+      (long)parentWindowIndex
+    ];
+    // Note: evalJSString: fails here during GC sweep, use setObject: instead.
+    [self.scribeEngine.jsc setObject: nil withName: key];
+  }
+  [parentEngine release], parentEngine = nil;
+
   [webView release], webView = nil;
   [scribeEngine release], scribeEngine = nil;
-  // [parentEngine release], parentEngine = nil;
   [super dealloc];
 }
 
