@@ -184,34 +184,30 @@ ScribeWindow *lastInstance;
 
 - (void) triggerEvent: (NSString *)event {
   if (scribeEngine) {
+    [scribeEngine retain];
     void (^selfTrigger)() = ^{
       [scribeEngine.jsc evalJSString: [NSString stringWithFormat:
         @"setTimeout(function(){Scribe.Window.current.trigger('%@');},0)", event
       ]];
+      [scribeEngine release];
     };
 
-    if ([NSThread isMainThread]) {
-      selfTrigger();
-    } else {
-      dispatch_sync(dispatch_get_main_queue(), selfTrigger);
-    }
+    dispatch_async(dispatch_get_main_queue(), selfTrigger);
   }
 
   if (parentEngine && parentWindowIndex != -1) {
     SCRIBELOG(@"%ld", (long)parentWindowIndex);
     SCRIBELOG(@"Trigger Event: %@", event);
+    [parentEngine retain];
     void (^refTrigger)() = ^{
       [parentEngine.jsc evalJSString: [NSString stringWithFormat:
         @"setTimeout(function(){Scribe.Window.instances[%ld] && Scribe.Window.instances[\
           %ld].trigger('%@');},0)", (long)parentWindowIndex, (long)parentWindowIndex, event
       ]];
+      [parentEngine release];
     };
 
-    if ([NSThread isMainThread]) {
-      refTrigger();
-    } else {
-      dispatch_sync(dispatch_get_main_queue(), refTrigger);
-    }
+    dispatch_async(dispatch_get_main_queue(), refTrigger);
   }
 }
 
@@ -296,19 +292,34 @@ ScribeWindow *lastInstance;
 //   }
 // }
 
+- (void) release {
+  if ([self retainCount] == 1) {
+
+    // This is a mess. Clean up after ourselves in a callback, in case
+    // we were released in a GC run.
+    void (^selfTrigger)() = ^{
+      if (parentWindowIndex != -1 && parentEngine) {
+        [parentEngine.jsc evalJSString: [NSString stringWithFormat:
+          @"Scribe.Window.instances[%ld]._nativeObject=null;",
+          (long)parentWindowIndex
+        ]];
+      }
+      [parentEngine release], parentEngine = nil;
+    };
+    dispatch_async(dispatch_get_main_queue(), selfTrigger);
+
+  }
+  [super release];
+}
+
 - (void) dealloc {
   SCRIBELOG(@"Deallocating Window.");
-  if (parentWindowIndex != -1 && parentEngine) {
-    [parentEngine.jsc evalJSString: [NSString stringWithFormat:
-      @"Scribe.Window.instances[%ld]._nativeObject=null;",
-      (long)parentWindowIndex
-    ]];
-  }
+  self.delegate = nil;
+  if (lastInstance == self) lastInstance = NULL;
 
   [webView release], webView = nil;
   [scribeEngine release], scribeEngine = nil;
-  [parentEngine release], parentEngine = nil;
-  if (lastInstance == self) lastInstance = NULL;
+  // [parentEngine release], parentEngine = nil;
   [super dealloc];
 }
 
