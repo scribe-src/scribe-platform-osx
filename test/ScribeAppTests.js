@@ -43,11 +43,16 @@ UnitTest("Scribe.app.identifier returns null", function(){
   AssertNull(Scribe.app.identifier);
 });
 
-UnitTest("Scribe.app.badge = 'a' does not throw an exception", function(){
-  Scribe.app.badge = 'a';
-  Assert(true);
+UnitTest("Scribe.app.icon is defined", function(){
+  AssertDefined(Scribe.app.icon);
 });
-UnitTest("Scribe.app.bounce() does not throw an exception", function(){
-  Scribe.app.bounce();
-  Assert(true);
-});
+
+// UnitTest("Scribe.app.badge = 'a' does not throw an exception", function(){
+//   Scribe.app.badge = 'a';
+//   Assert(true);
+// });
+
+// UnitTest("Scribe.app.bounce() does not throw an exception", function(){
+//   Scribe.app.bounce();
+//   Assert(true);
+// });

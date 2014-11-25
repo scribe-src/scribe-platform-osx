@@ -25,14 +25,18 @@ Scribe.App::_getEnv = (varName) ->
 Scribe.App::_setEnv = (varName, value) ->
   OSX.ScribeEngine['setEnvVar:toValue:'](varName, value)
 
-Scribe.App::_setBadge = (label) ->
-  OSX.NSApp.dockTile.setBadgeLabel(label)
+icon = null
+Scribe.App::_getIcon = ->
+  icon ?= new Scribe.DockIcon()
 
-Scribe.App::_getBadge = ->
-  OSX.NSApp.dockTile.badgeLabel?.toString()
+# Scribe.App::_setBadge = (label) ->
+#   OSX.NSApp.dockTile.setBadgeLabel(label)
 
-Scribe.App::_bounce = ->
-  OSX.NSApp.requestUserAttention(OSX.NSCriticalRequest)
+# Scribe.App::_getBadge = ->
+#   OSX.NSApp.dockTile.badgeLabel?.toString()
+
+# Scribe.App::_bounce = ->
+#   OSX.NSApp.requestUserAttention(OSX.NSCriticalRequest)
 
 Scribe.App::_exit = (status) ->
   OSX.NSApp.terminate(null)
