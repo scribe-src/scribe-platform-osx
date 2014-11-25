@@ -169,6 +169,6 @@ Scribe.Window::_getEngine = ->
   new Scribe.Engine(nativeObject: @nativeObject.scribeEngine)
 
 # Assign the Scribe.Window.current static class variable
-if (OSX.ScribeWindow.lastInstance)
+if Scribe.Window._current
   Scribe.Window.current = new Scribe.Window
-    nativeObject: OSX.ScribeWindow.lastInstance
+    nativeObject: Scribe.Window._current

@@ -122,6 +122,9 @@ ScribeWindow *lastInstance;
   // with the universal bits of the Scribe.* namespace.
   ScribeEngine *engine = [ScribeEngine inject: [frame globalContext]];
 
+  // add a reference to yourself!
+  [engine.jsc setObject: self withName: @"Scribe.Window._current"];
+
   // Inject the OSX-specific bits of the Scribe.* APIs, that get
   // compiled into a header.
   if (osxStart) {
