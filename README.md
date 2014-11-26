@@ -4,8 +4,6 @@
 
 The `scribe-platform-osx` module contains a template Mac OS X application that runs a Javascript file and provides a standard Window and Menu API as well as Objective-C and C bridges that allow native libraries to be described and called.
 
-The project uses the `scribe-engine-jsc` project, which injects hooks into the JavaScriptCore engine.
-
 #### Setup
 
 Dependencies are tracked as git submodules, you can initialize and fetch them with:
