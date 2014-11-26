@@ -4,3 +4,9 @@
 [submodule "deps/objc-unit"]
 	path = deps/objc-unit
 	url = https://github.com/scribe-src/objc-unit.git
+[submodule "deps/jscocoa"]
+	path = deps/jscocoa
+	url = https://github.com/scribe-io/jscocoa.git
+[submodule "deps/scribe-api"]
+	path = deps/scribe-api
+	url = https://github.com/scribe-src/scribe-api.git
