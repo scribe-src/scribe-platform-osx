@@ -1,7 +1,5 @@
-[![Build Status](https://travis-ci.org/scribe-src/scribe-platform-osx.svg)](https://travis-ci.org/scribe-src/scribe-platform-osx)
-
-### scribe-platform-osx
-
+scribe-platform-osx [![Build Status](https://travis-ci.org/scribe-src/scribe-platform-osx.svg)](https://travis-ci.org/scribe-src/scribe-platform-osx)
+==
 The `scribe-platform-osx` module contains a template Mac OS X application that runs a Javascript file and provides a standard Window and Menu API as well as Objective-C and C bridges that allow native libraries to be described and called.
 
 #### Setup
