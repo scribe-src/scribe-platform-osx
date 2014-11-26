@@ -2,12 +2,16 @@ CC=clang
 TMP_DIR=/tmp
 
 JSCOCOA_DIR=./deps/jscocoa/JSCocoa
+FASTZIP_DIR=./deps/fast-zip
+FASTZIP_SRC_FILES=$(wildcard $(FASTZIP_DIR)/src/**.m $(FASTZIP_DIR)/deps/minizip/**.c)
+FASTZIP_FILTERED=$(FASTZIP_DIR)/deps/minizip/iowin32.c $(FASTZIP_DIR)/deps/minizip/minizip.c $(FASTZIP_DIR)/deps/minizip/miniunz.c
+FASTZIP_FILES=$(filter-out $(FASTZIP_FILTERED), $(FASTZIP_SRC_FILES))
 
 # The files to compile
 SRC_DIR=src
-SRC_FILES=$(SRC_DIR)/**.m $(JSCOCOA_DIR)/**.m
+SRC_FILES=$(SRC_DIR)/**.m $(JSCOCOA_DIR)/**.m $(FASTZIP_FILES)
 
-INCLUDES=-I$(JSCOCOA_DIR) -I$(SRC_DIR)
+INCLUDES=-I$(JSCOCOA_DIR) -I$(SRC_DIR) -I$(FASTZIP_DIR)/src -I$(FASTZIP_DIR)/deps/minizip
 
 # Files needed for building tests
 TEST_DIR=test
@@ -47,9 +51,9 @@ M_FILES = $(wildcard src/*.m)
 SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) $(JSCOCOA_DIR)/**.m
 CFLAGS=-lobjc -lffi $(FRAMEWORKS) -fPIE $(ADD_DATA) \
   -mmacosx-version-min=10.5 -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap \
-  -lpthread
+  -lpthread -lz
 TRAVISFLAGS=-lobjc -lffi $(FRAMEWORKS) -fPIE $(DEBUG_FLAG) \
-	$(ADD_DATA) -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap -lpthread
+	$(ADD_DATA) -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap -lpthread -lz
 
 # Ensure that the `test` and `clean` targets always get run
 .PHONY: test clean init open run debug test-run test-travis bump-deps

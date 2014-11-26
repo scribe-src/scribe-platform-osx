@@ -1,5 +1,6 @@
 #import "ScribeWindow.h"
 #import "JSCocoa.h"
+#import "FastZip.h"
 
 // Abuse the Darwin linker to get a handle to the START of the
 // osx linker section. This way we can shove data in with `ld`.

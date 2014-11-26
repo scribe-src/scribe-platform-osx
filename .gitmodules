@@ -10,3 +10,6 @@
 [submodule "deps/scribe-api"]
 	path = deps/scribe-api
 	url = https://github.com/scribe-src/scribe-api.git
+[submodule "deps/fast-zip"]
+	path = deps/fast-zip
+	url = https://github.com/scribe-src/fast-zip.git
