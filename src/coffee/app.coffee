@@ -25,8 +25,9 @@ Scribe.App::_getEnv = (varName) ->
 Scribe.App::_setEnv = (varName, value) ->
   OSX.ScribeEngine['setEnvVar:toValue:'](varName, value)
 
+# Store a static icon var in our closure
 icon = null
-Scribe.App::_getIcon = ->
+Scribe.App::_getDockIcon = ->
   icon ?= new Scribe.DockIcon()
 
 # Scribe.App::_setBadge = (label) ->

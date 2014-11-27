@@ -3,7 +3,7 @@
 #
 
 Scribe.Screen._getAll = ->
-  [].slice.call(OSX.NSScreen.screens).map (screen) ->
+  Array::slice.call(OSX.NSScreen.screens).map (screen) ->
     new Scribe.Screen({ nativeObject: screen })
 
 Scribe.Screen::_getWidth = ->

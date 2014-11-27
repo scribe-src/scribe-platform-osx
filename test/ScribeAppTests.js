@@ -1,9 +1,9 @@
 UnitTest("Scribe.App is defined", function(){
-  AssertDefined(Scribe.App);
+  AssertTruthy(Scribe.App);
 });
 
 UnitTest("Scribe.app is defined", function(){
-  AssertDefined(Scribe.app);
+  AssertTruthy(Scribe.app);
 });
 
 UnitTest("Scribe.app equals Scribe.App.current", function(){
@@ -11,11 +11,11 @@ UnitTest("Scribe.app equals Scribe.App.current", function(){
 });
 
 UnitTest("Scribe.app.getEnv('USER') is defined", function(){
-  AssertDefined(Scribe.app.getEnv('USER'));
+  AssertTruthy(Scribe.app.getEnv('USER'));
 });
 
 UnitTest("Scribe.app.setEnv('BLAH') does not fail", function(){
-  AssertDefined(Scribe.app.setEnv('BLAH', 'A'));
+  AssertTruthy(Scribe.app.setEnv('BLAH', 'A'));
 });
 
 UnitTest("Scribe.app.getEnv('BLAH') returns '1' after Scribe.app.setEnv('BLAH', '1')", function(){
@@ -43,8 +43,8 @@ UnitTest("Scribe.app.identifier returns null", function(){
   AssertNull(Scribe.app.identifier);
 });
 
-UnitTest("Scribe.app.icon is defined", function(){
-  AssertDefined(Scribe.app.icon);
+UnitTest("Scribe.app.dockIcon is defined", function(){
+  AssertTruthy(Scribe.app.dockIcon);
 });
 
 // UnitTest("Scribe.app.badge = 'a' does not throw an exception", function(){

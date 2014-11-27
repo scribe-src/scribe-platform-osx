@@ -4,14 +4,6 @@
 
 global = @
 
-# Polyfill for debugger
-# Object.defineProperty(this, 'debugger', {
-#   get: function initDebugger() {
-#     Scribe.debugger();
-#     return true;
-#   }
-# })
-
 # keep a helper inside our closure
 params = (searchString) ->
   paramValue = ""
