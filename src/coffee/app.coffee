@@ -27,7 +27,7 @@ Scribe.App::_setEnv = (varName, value) ->
 
 # Store a static icon var in our closure
 icon = null
-Scribe.App::_getDockIcon = ->
+Scribe.App::_getIcon = ->
   icon ?= new Scribe.DockIcon()
 
 # Scribe.App::_setBadge = (label) ->

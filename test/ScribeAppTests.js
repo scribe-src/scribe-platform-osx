@@ -43,8 +43,8 @@ UnitTest("Scribe.app.identifier returns null", function(){
   AssertNull(Scribe.app.identifier);
 });
 
-UnitTest("Scribe.app.dockIcon is defined", function(){
-  Assert(Scribe.app.dockIcon);
+UnitTest("Scribe.app.icon is defined", function(){
+  Assert(Scribe.app.icon);
 });
 
 // UnitTest("Scribe.app.badge = 'a' does not throw an exception", function(){
