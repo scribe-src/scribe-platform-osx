@@ -46,6 +46,6 @@
 + (void) log: (NSString *) msg;
 
 // Convenience function for setting an env variable
-+ (void) setEnvVar: (NSString *) var toValue: (NSString *) val;
++ (BOOL) setEnvVar: (NSString *) var toValue: (NSString *) val;
 
 @end

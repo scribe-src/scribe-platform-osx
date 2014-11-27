@@ -138,8 +138,8 @@ extern int apiStart __asm("section$start$__DATA$__scribejs");
 }
 
 // Convenience function for setting an env variable
-+ (void) setEnvVar: (NSString *) var toValue: (NSString *) val {
-  setenv(var.UTF8String, val.UTF8String, 1);
++ (BOOL) setEnvVar: (NSString *) var toValue: (NSString *) val {
+  return (setenv(var.UTF8String, val.UTF8String, 1) == 0);
 }
 
 @end

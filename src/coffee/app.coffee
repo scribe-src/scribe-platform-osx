@@ -23,7 +23,7 @@ Scribe.App::_getEnv = (varName) ->
   OSX.NSProcessInfo.processInfo.environment[varName]?.toString() ? null
 
 Scribe.App::_setEnv = (varName, value) ->
-  OSX.ScribeEngine['setEnvVar:toValue:'](varName, value)
+  !!OSX.ScribeEngine['setEnvVar:toValue:'](varName, value)
 
 # Store a static icon var in our closure
 icon = null
