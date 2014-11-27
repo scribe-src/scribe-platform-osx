@@ -26,17 +26,7 @@ do ->
   throw new Error('_currentEngine global not found') unless @_currentEngine?
 
   # Hook up the Scribe.Engine.current reference
-  Scribe.Engine.current = new Scribe.Engine(nativeObject: global._currentEngine);
-
-  # Add some convenience methods if they are missing
-  fallbacks = [
-    'setTimeout', 'setInterval',
-    'clearTimeout', 'clearInterval'
-  ]
-
-  # Install each fallback into global scope if it doesn't exist yet
-  for fallback in fallbacks
-    global[fallback] ?= Scribe.engine[fallback].bind(Scribe.engine)
+  Scribe.Engine.current = new Scribe.Engine(nativeObject: global._currentEngine)
 
   # Add a log method to scope
   Scribe.log = ->

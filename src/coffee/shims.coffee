@@ -98,3 +98,16 @@ global.prompt ||= (msg) ->
       retVal = null
     input.release
   retVal
+
+
+# Add some convenience methods if they are missing
+domFallbacks = [
+  'setTimeout', 'setInterval',
+  'clearTimeout', 'clearInterval'
+]
+
+# Install each fallback into global scope if it doesn't exist yet
+domFallbacks.forEach (fallback) ->
+  global[fallback] ?= ->
+    args = Array::slice.call(arguments)
+    Scribe.engine[fallback].apply(Scribe.engine, args)
