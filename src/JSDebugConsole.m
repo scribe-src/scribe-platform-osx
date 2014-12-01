@@ -56,7 +56,7 @@ unsigned toggleMultiline(EditLine *e, int ch) {
 
 - (id) initWithJSCocoa: (JSCocoaController *) _jsc {
   if (self = [super init]) {
-    self.jsc = _jsc;
+    jsc = [_jsc retain];
     self.jsc.delegate = self;
   }
 
@@ -88,6 +88,7 @@ unsigned toggleMultiline(EditLine *e, int ch) {
 }
 
 - (void) kill {
+  activeConsole = nil;
   done = YES;
   _killed = YES;
 }
@@ -164,8 +165,9 @@ unsigned toggleMultiline(EditLine *e, int ch) {
 }
 
 - (void) dealloc {
+  jsc.delegate = nil;
   [jsc release];
-  self.jsc = nil;
+  jsc = nil;
   [super dealloc];
 }
 

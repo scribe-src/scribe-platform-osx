@@ -7,8 +7,8 @@
   BOOL _killed;
 }
 
-@property (nonatomic, retain) JSCocoaController *jsc;
-@property BOOL done;
+@property (atomic, retain) JSCocoaController *jsc;
+@property (atomic) BOOL done;
 
 + (id) activeConsole;
 

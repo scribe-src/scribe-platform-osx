@@ -15,8 +15,8 @@
 //
 
 // Each engine instance belongs to a single JS context
-@property (nonatomic, assign) JSGlobalContextRef context;
-@property (nonatomic, retain) JSCocoaController *jsc;
+@property (atomic, assign) JSGlobalContextRef context;
+@property (atomic, retain) JSCocoaController *jsc;
 
 - (id) initWithContext: (JSGlobalContextRef) ctx;
 
