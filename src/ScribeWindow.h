@@ -4,9 +4,6 @@
 #import "ScribeEngine.h"
 
 @interface ScribeWindow: NSWindow <NSWindowDelegate> {
-  WebView *webView;
-  ScribeEngine *scribeEngine;
-  ScribeEngine *parentEngine;
   NSInteger parentWindowIndex;
 }
 

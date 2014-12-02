@@ -187,13 +187,13 @@ ScribeWindow *lastInstance;
 }
 
 - (void) triggerEvent: (NSString *)event {
-  if (scribeEngine) {
-    [scribeEngine retain];
+  if (self.scribeEngine) {
+    [self.scribeEngine retain];
     void (^selfTrigger)() = ^{
-      [scribeEngine.jsc evalJSString: [NSString stringWithFormat:
+      [self.scribeEngine.jsc evalJSString: [NSString stringWithFormat:
         @"setTimeout(function(){Scribe.Window.current.trigger('%@');},0)", event
       ]];
-      [scribeEngine release];
+      [self.scribeEngine release];
     };
 
     dispatch_async(dispatch_get_main_queue(), selfTrigger);
@@ -313,7 +313,7 @@ ScribeWindow *lastInstance;
   [parentEngine release], parentEngine = nil;
 
   [webView release], webView = nil;
-  [scribeEngine release], scribeEngine = nil;
+  [self.scribeEngine release], self.scribeEngine = nil;
   [super dealloc];
 }
 
