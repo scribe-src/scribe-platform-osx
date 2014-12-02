@@ -32,19 +32,19 @@ extern int apiStart __asm("section$start$__DATA$__scribejs");
 
     // save the context ptr for later
     self.context = ctx;
-    JSGlobalContextRetain(context);
+    JSGlobalContextRetain(self.context);
 
     // inject the JSCocoa runtime
-    self.jsc = [[JSCocoa alloc] initWithGlobalContext: ctx];
+    self.jsc = [[JSCocoa alloc] initWithGlobalContext: self.context];
     [self.jsc release];
     self.jsc.delegate = self;
 
     // Inject a weak reference to the current engine into Javascript
-    [jsc setObject: self withName: @"_currentEngine"];
+    [self.jsc setObject: self withName: @"_currentEngine"];
 
     // Run any js that has been stuffed into a linker section
     NSString *js = [NSString stringWithCString: (char*)&apiStart encoding: NSUTF8StringEncoding];
-    [jsc evalJSString: js];
+    [self.jsc evalJSString: js];
   }
 
   return self;
@@ -59,7 +59,7 @@ extern int apiStart __asm("section$start$__DATA$__scribejs");
 }
 
 - (void) repl {
-  JSDebugConsole *console = [[JSDebugConsole alloc] initWithJSCocoa: jsc];
+  JSDebugConsole *console = [[JSDebugConsole alloc] initWithJSCocoa: self.jsc];
   [console start];
   while (!console.done) [ScribeEngine spin: 1];
   [console release];
@@ -80,13 +80,13 @@ extern int apiStart __asm("section$start$__DATA$__scribejs");
 - (void) dealloc {
   [_timers release], _timers = nil;
 
-  [jsc unlinkAllReferences];
-  [jsc garbageCollect];
-  [jsc release], jsc = nil;
+  [self.jsc unlinkAllReferences];
+  [self.jsc garbageCollect];
+  [self.jsc release], self.jsc = nil;
 
-  JSGarbageCollect(context);
-  JSGlobalContextRelease(context);
-  context = nil;
+  JSGarbageCollect(self.context);
+  JSGlobalContextRelease(self.context);
+  self.context = nil;
 
   [super dealloc];
 }

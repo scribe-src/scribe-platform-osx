@@ -28,11 +28,11 @@ dispatch_source_t CreateDispatchTimer(double interval, dispatch_queue_t queue, d
   c.function = fn;
   SCRIBELOG(@"setTimeout called.");
   c.timer = CreateDispatchTimer(
-    [jsc toDouble: timeout.value]/1000.0f,
+    [self.jsc toDouble: timeout.value]/1000.0f,
     dispatch_get_main_queue(), ^{
 
     SCRIBELOG(@"Running setTimeout callback");
-    [jsc callJSFunction: obj withArguments: @[]];
+    [self.jsc callJSFunction: obj withArguments: @[]];
 
     if (!repeats) {
       [_timers replaceObjectAtIndex: index withObject: [NSNull null]];
