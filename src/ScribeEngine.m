@@ -17,7 +17,7 @@ extern int apiStart __asm("section$start$__DATA$__scribejs");
 // Instance Methods
 //
 
-@synthesize context, jsc;
+@synthesize context = _context, jsc = _jsc;
 
 - (id) init {
   JSGlobalContextRef ctx = JSGlobalContextCreate(NULL);

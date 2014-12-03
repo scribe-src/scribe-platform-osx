@@ -11,7 +11,9 @@ ScribeWindow *lastInstance;
 
 @implementation ScribeWindow
 
-@synthesize webView, scribeEngine, parentEngine;
+@synthesize webView = _webView,
+            scribeEngine = _scribeEngine,
+            parentEngine = _parentEngine;
 
 + (id) lastInstance { return lastInstance; }
 
@@ -26,7 +28,7 @@ ScribeWindow *lastInstance;
                                   defer: deferCreation]) {
     self.delegate = self;
     lastInstance = self;
-    parentWindowIndex = -1;
+    _parentWindowIndex = -1;
 
     [self buildWebView];
   }
@@ -49,8 +51,8 @@ ScribeWindow *lastInstance;
   self.webView = [[[WebView alloc] initWithFrame: self.frame
                                        frameName: @"scribe"
                                        groupName: nil] autorelease];
-  webView.frameLoadDelegate = self;
-  webView.UIDelegate = self;
+  self.webView.frameLoadDelegate = self;
+  self.webView.UIDelegate = self;
 
   NSString *app = [[[NSBundle mainBundle] localizedInfoDictionary]
     objectForKey:@"CFBundleName"];
@@ -59,7 +61,7 @@ ScribeWindow *lastInstance;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-method-access"
-  WebPreferences *prefs = [webView preferences];
+  WebPreferences *prefs = [self.webView preferences];
   [prefs setAutosaves:YES];
 
   static const unsigned long long defaultTotalQuota = 1024 * 1024 * 1024 * 10; // 10GB
@@ -82,14 +84,14 @@ ScribeWindow *lastInstance;
     [NSString stringWithFormat: @"~/Library/Application Support/%@", app]];
 #pragma clang diagnostic pop
 
-  [self setContentView: webView];
+  [self setContentView: self.webView];
 }
 
 - (void) navigateToURL: (NSString *) url {
   NSURL *resolvedURL = [NSURL URLWithString: url
                       relativeToURL: [[NSApp delegate] baseURL]];
   NSURLRequest *request = [NSURLRequest requestWithURL: resolvedURL];
-  [[webView mainFrame] loadRequest: request];
+  [[self.webView mainFrame] loadRequest: request];
 }
 
 //
@@ -134,7 +136,7 @@ ScribeWindow *lastInstance;
   }
 
   // save the ScribeEngine in an ivar if this is the top frame
-  if (frame == [webView mainFrame]) {
+  if (frame == [self.webView mainFrame]) {
     [self.scribeEngine release];
     self.scribeEngine = engine;
   }
@@ -199,16 +201,16 @@ ScribeWindow *lastInstance;
     dispatch_async(dispatch_get_main_queue(), selfTrigger);
   }
 
-  if (parentEngine && parentWindowIndex != -1) {
+  if (self.parentEngine && _parentWindowIndex != -1) {
     SCRIBELOG(@"%ld", (long)parentWindowIndex);
     SCRIBELOG(@"Trigger Event: %@", event);
-    [parentEngine retain];
+    [self.parentEngine retain];
     void (^refTrigger)() = ^{
-      [parentEngine.jsc evalJSString: [NSString stringWithFormat:
+      [self.parentEngine.jsc evalJSString: [NSString stringWithFormat:
         @"setTimeout(function(){Scribe.Window.instances[%ld] && Scribe.Window.instances[\
-          %ld].trigger('%@');},0)", (long)parentWindowIndex, (long)parentWindowIndex, event
+          %ld].trigger('%@');},0)", (long)_parentWindowIndex, (long)_parentWindowIndex, event
       ]];
-      [parentEngine release];
+      [self.parentEngine release];
     };
 
     dispatch_async(dispatch_get_main_queue(), refTrigger);
@@ -216,7 +218,7 @@ ScribeWindow *lastInstance;
 }
 
 - (void) setParentWindowIndex: (NSInteger) idx {
-  parentWindowIndex = idx;
+  _parentWindowIndex = idx;
 }
 
 - (BOOL) confirm: (NSString *) msg {
@@ -302,17 +304,17 @@ ScribeWindow *lastInstance;
   self.delegate = nil;
   if (lastInstance == self) lastInstance = NULL;
 
-  if (parentWindowIndex != -1 && parentEngine) {
+  if (_parentWindowIndex != -1 && self.parentEngine) {
     NSString *key = [NSString stringWithFormat:
       @"Scribe.Window.instances[%ld]._nativeObject=null;",
-      (long)parentWindowIndex
+      (long)_parentWindowIndex
     ];
     // Note: evalJSString: fails here during GC sweep, use setObject: instead.
     [self.scribeEngine.jsc setObject: nil withName: key];
   }
-  [parentEngine release], parentEngine = nil;
+  [self.parentEngine release], self.parentEngine = nil;
 
-  [webView release], webView = nil;
+  [self.webView release], self.webView = nil;
   [self.scribeEngine release], self.scribeEngine = nil;
   [super dealloc];
 }

@@ -6,6 +6,8 @@
 // An Engine is a single instance of the Javascript runtime
 @interface ScribeEngine: NSObject {
   NSMutableArray *_timers;
+  JSGlobalContextRef _context;
+  JSCocoaController *_jsc;
 }
 
 //

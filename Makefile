@@ -40,7 +40,8 @@ DEBUG_FLAG=-g
 
 # Needed for linking
 ADD_DATA = -sectcreate __DATA __scribejs $(APIJS_TMP) \
-  -sectcreate __DATA __osxjs $(OSXJS_TMP)
+  -sectcreate __DATA __osxjs $(OSXJS_TMP) \
+  -sectcreate __DATA __assets build/www.b64
 
 FRAMEWORKS=-framework Cocoa -framework WebKit \
            -framework JavaScriptCore -framework AppKit
@@ -55,7 +56,7 @@ TRAVISFLAGS=-lobjc -lffi $(FRAMEWORKS) -fPIE $(DEBUG_FLAG) \
 	$(ADD_DATA) -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap -lpthread -lz
 
 # Ensure that the `test` and `clean` targets always get run
-.PHONY: test clean init open run debug test-run test-travis bump-deps
+.PHONY: test clean init open run debug test-run test-travis bump-deps zip
 
 all: init
 	mkdir -p $(OUT_DIR)
@@ -74,7 +75,13 @@ bump-deps:
 	cd ./deps/jscocoa && git pull --ff origin master
 	cd ./deps/objc-unit && git pull --ff origin master
 
-init:
+# Bundle up the HTML assets
+zip:
+	zip -r ./build/www.zip www
+	openssl base64 -in ./build/www.zip -out build/www.b64
+	printf "\x00" >> ./build/www.b64
+
+init: zip
 	# Prepare some data for inserting into an macho segment
 	make -C $(SCRIBE_API_DIR) dist
 	mkdir -p $(OUT_DIR)
