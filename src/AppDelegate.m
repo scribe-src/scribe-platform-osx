@@ -94,11 +94,14 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
 - (void) loadMainJS {
   NSString *jsPath = [self mainJSPath];
   NSError  *err  = nil;
-  NSString *js   = [NSString stringWithContentsOfFile: jsPath
-                                   encoding: NSUTF8StringEncoding
-                                      error: &err];
+  NSString *js   = nil;
 
-  if (!js) {
+  js = [NSString stringWithContentsOfFile: jsPath
+                               encoding: NSUTF8StringEncoding
+                                  error: &err];
+
+  if (err || !js) {
+    err = nil;
     NSData *data = [[FileSystem shared] fileAtPath: @"main.js"];
     SCRIBELOG(@"Loaded main,js data: %d", [data length]);
     if (data && data.length > 0) {
@@ -107,7 +110,6 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
   }
 
   if (!err && js) {
-
     // wrap the JS with a try{}catch{} so we can report errors
     js = [NSString stringWithFormat:
       @"var err;try{(function(){%@})();}catch(e){err = e};err;", js];
