@@ -100,16 +100,15 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
                                encoding: NSUTF8StringEncoding
                                   error: &err];
 
+#ifndef TEST_ENV
   if (err || !js) {
     NSData *data = [[FileSystem shared] fileAtPath: @"main.js"];
     SCRIBELOG(@"Loaded main.js data: %d", [data length]);
     if (data && data.length > 0) {
-      js = [NSString stringWithUTF8String: [data bytes]];
-    }
-    if (js) {
-      err = nil;
+      js = [NSString stringWithUTF8String: [data bytes]];      
     }
   }
+#endif
 
   if (!err && js) {
     // wrap the JS with a try{}catch{} so we can report errors
