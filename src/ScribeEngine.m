@@ -91,7 +91,7 @@ extern int apiStart __asm("section$start$__DATA$__scribejs");
 
   [self.jsc unlinkAllReferences];
   [self.jsc garbageCollect];
-  [self.jsc release], self.jsc = nil;
+  [self.jsc release], _jsc = nil;
 
   JSGarbageCollect(self.context);
   JSGlobalContextRelease(self.context);

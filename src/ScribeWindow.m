@@ -47,9 +47,9 @@ ScribeWindow *lastInstance;
 }
 
 - (void) buildWebView {
-  self.webView = [[[WebView alloc] initWithFrame: self.frame
-                                       frameName: @"scribe"
-                                       groupName: nil] autorelease];
+  _webView = [[WebView alloc] initWithFrame: self.frame
+                                  frameName: @"scribe"
+                                  groupName: nil];
   self.webView.frameLoadDelegate = self;
   self.webView.UIDelegate = self;
 
@@ -311,10 +311,12 @@ ScribeWindow *lastInstance;
     // Note: evalJSString: fails here during GC sweep, use setObject: instead.
     [self.scribeEngine.jsc setObject: nil withName: key];
   }
-  [self.parentEngine release], self.parentEngine = nil;
+  
+  [self.parentEngine release], _parentEngine = nil;
 
-  [self.webView release], self.webView = nil;
-  [self.scribeEngine release], self.scribeEngine = nil;
+  [self.webView removeFromSuperview];
+  [self.webView release], _webView = nil;
+  [self.scribeEngine release], _scribeEngine = nil;
   [super dealloc];
 }
 

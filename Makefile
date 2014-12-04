@@ -36,7 +36,7 @@ OSXJS_TMP=$(TMP_DIR)/OSXTMP.js
 DEBUG_FLAG=
 
 # Uncomment the below line for verbose output in tests:
-DEBUG_FLAG=-g -DDEBUG
+# DEBUG_FLAG=-g -DDEBUG
 
 # Needed for linking
 ADD_DATA = -sectcreate __DATA __scribejs $(APIJS_TMP) \
