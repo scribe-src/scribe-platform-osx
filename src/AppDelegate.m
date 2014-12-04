@@ -1,7 +1,7 @@
 #import "AppDelegate.h"
 #import "JSDebugConsole.h"
+#import "FileSystem.h"
 
-// TODO DRY this w/ ScribeWindow.m
 extern int osxStart __asm("section$start$__DATA$__osxjs");
 
 @implementation AppDelegate
@@ -94,10 +94,20 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
 - (void) loadMainJS {
   NSString *jsPath = [self mainJSPath];
   NSError  *err  = nil;
+  NSString *js   = nil;
 
-  NSString *js = [NSString stringWithContentsOfFile: jsPath
-                                           encoding: NSUTF8StringEncoding
-                                              error: &err];
+  NSData *data = [[FileSystem shared] fileAtPath: @"main.js"];
+  NSLog(@"Loaded main,js data: %@", data);
+  if (data && data.length > 0) {
+    js = [NSString stringWithUTF8String: [data bytes]];
+  }
+
+  if (!js) {
+    js = [NSString stringWithContentsOfFile: jsPath
+                                   encoding: NSUTF8StringEncoding
+                                      error: &err];
+  }
+
   if (!err && js) {
 
     // wrap the JS with a try{}catch{} so we can report errors

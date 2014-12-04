@@ -1,6 +1,8 @@
 #import "ScribeEngine.h"
 #import "ScribeEngine+SetTimeout.h"
 #import "JSDebugConsole.h"
+#import "FileSystem.h"
+#import "AppURLProtocol.h"
 
 #include <dlfcn.h>
 #include <sys/types.h>
@@ -18,6 +20,13 @@ extern int apiStart __asm("section$start$__DATA$__scribejs");
 //
 
 @synthesize context = _context, jsc = _jsc;
+
+// Set up the NSURLRequest hook
++ (void) initialize {
+  NSAutoreleasePool *pool = [NSAutoreleasePool new];
+  [NSURLProtocol registerClass: [AppURLProtocol class]];
+  [pool drain];
+}
 
 - (id) init {
   JSGlobalContextRef ctx = JSGlobalContextCreate(NULL);

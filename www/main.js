@@ -11,6 +11,6 @@ var win = Scribe.Window.create({
 
 win.show();
 win.center();
-win.navigateToURL('index.html');
+win.navigateToURL('app://blah.com/index.html');
 
 this.win = win;

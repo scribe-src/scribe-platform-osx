@@ -1,6 +1,5 @@
 #import "ScribeWindow.h"
 #import "JSCocoa.h"
-#import "FastZip.h"
 
 // Abuse the Darwin linker to get a handle to the START of the
 // osx linker section. This way we can shove data in with `ld`.
@@ -55,7 +54,7 @@ ScribeWindow *lastInstance;
   self.webView.UIDelegate = self;
 
   NSString *app = [[[NSBundle mainBundle] localizedInfoDictionary]
-    objectForKey:@"CFBundleName"];
+    objectForKey: @"CFBundleName"];
 
   if (!app) app = @"Scribe";
 
@@ -202,7 +201,7 @@ ScribeWindow *lastInstance;
   }
 
   if (self.parentEngine && _parentWindowIndex != -1) {
-    SCRIBELOG(@"%ld", (long)parentWindowIndex);
+    SCRIBELOG(@"%ld", (long)_parentWindowIndex);
     SCRIBELOG(@"Trigger Event: %@", event);
     [self.parentEngine retain];
     void (^refTrigger)() = ^{

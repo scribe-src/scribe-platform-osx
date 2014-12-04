@@ -33,25 +33,27 @@ APIJS=$(SCRIBE_API_DIR)/dist/dist.js
 OSXJS=./src/coffee/*.coffee
 APIJS_TMP=$(TMP_DIR)/APITMP.js
 OSXJS_TMP=$(TMP_DIR)/OSXTMP.js
-DEBUG_FLAG=-g
+DEBUG_FLAG=
 
 # Uncomment the below line for verbose output in tests:
-# DEBUG_FLAG=-g -DDEBUG
+DEBUG_FLAG=-g -DDEBUG
 
 # Needed for linking
 ADD_DATA = -sectcreate __DATA __scribejs $(APIJS_TMP) \
   -sectcreate __DATA __osxjs $(OSXJS_TMP) \
-  -sectcreate __DATA __assets build/www.b64
+  -sectcreate __DATA __assets build/www.zip \
+  -sectcreate __DATA __assets_len build/www_size.txt
 
 FRAMEWORKS=-framework Cocoa -framework WebKit \
-           -framework JavaScriptCore -framework AppKit
+           -framework JavaScriptCore -framework AppKit \
+           -framework CoreServices
 
 # Include all src files except src/main.m in the test suite
 M_FILES = $(wildcard src/*.m)
-SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) $(JSCOCOA_DIR)/**.m
+SRC_FOR_TEST = $(filter-out src/main.m, $(M_FILES)) $(JSCOCOA_DIR)/**.m $(FASTZIP_FILES)
 CFLAGS=-lobjc -lffi $(FRAMEWORKS) -fPIE $(ADD_DATA) \
   -mmacosx-version-min=10.5 -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap \
-  -lpthread -lz
+  -lpthread -lz -fblocks
 TRAVISFLAGS=-lobjc -lffi $(FRAMEWORKS) -fPIE $(DEBUG_FLAG) \
 	$(ADD_DATA) -DOS_OBJECT_USE_OBJC=0 -ledit -ltermcap -lpthread -lz
 
@@ -77,9 +79,10 @@ bump-deps:
 
 # Bundle up the HTML assets
 zip:
-	zip -r ./build/www.zip www
-	openssl base64 -in ./build/www.zip -out build/www.b64
-	printf "\x00" >> ./build/www.b64
+	mkdir -p $(OUT_DIR)
+	cd www && zip -r ../build/www.zip .
+	wc -c < ./build/www.zip | tr -d '\n ' > ./build/www_size.txt
+	@printf "\x00" >> ./build/www_size.txt
 
 init: zip
 	# Prepare some data for inserting into an macho segment
@@ -103,7 +106,7 @@ run:
 	$(OUT_FILE)
 
 debug:
-	gdb $(OUT_FILE)
+	lldb $(OUT_FILE)
 
 test: init
 	$(CC) -g $(CFLAGS) $(DEBUG_FLAG) $(TEST_FILES) $(SRC_FOR_TEST) \
