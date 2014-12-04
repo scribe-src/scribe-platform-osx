@@ -101,11 +101,13 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
                                   error: &err];
 
   if (err || !js) {
-    err = nil;
     NSData *data = [[FileSystem shared] fileAtPath: @"main.js"];
-    SCRIBELOG(@"Loaded main,js data: %d", [data length]);
+    SCRIBELOG(@"Loaded main.js data: %d", [data length]);
     if (data && data.length > 0) {
       js = [NSString stringWithUTF8String: [data bytes]];
+    }
+    if (js) {
+      err = nil;
     }
   }
 
