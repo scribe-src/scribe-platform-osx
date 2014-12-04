@@ -94,18 +94,16 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
 - (void) loadMainJS {
   NSString *jsPath = [self mainJSPath];
   NSError  *err  = nil;
-  NSString *js   = nil;
-
-  NSData *data = [[FileSystem shared] fileAtPath: @"main.js"];
-  NSLog(@"Loaded main,js data: %@", data);
-  if (data && data.length > 0) {
-    js = [NSString stringWithUTF8String: [data bytes]];
-  }
-
-  if (!js) {
-    js = [NSString stringWithContentsOfFile: jsPath
+  NSString *js   = [NSString stringWithContentsOfFile: jsPath
                                    encoding: NSUTF8StringEncoding
                                       error: &err];
+
+  if (!js) {
+    NSData *data = [[FileSystem shared] fileAtPath: @"main.js"];
+    SCRIBELOG(@"Loaded main,js data: %d", [data length]);
+    if (data && data.length > 0) {
+      js = [NSString stringWithUTF8String: [data bytes]];
+    }
   }
 
   if (!err && js) {
@@ -119,8 +117,8 @@ extern int osxStart __asm("section$start$__DATA$__osxjs");
     // Check and bubble any JS errors as objc Exceptions
     if (!JSValueIsUndefined(self.engine.context, jsErr)) {
       [NSException raise: @"MainJS Runtime Exception" format:
-        @"An error occurred trying to execute the MainJS File: %@\n\n%@",
-        jsPath, [self.engine.jsc toString: jsErr]
+        @"An error occurred trying to execute the MainJS File: %@\n\n%@\n\n%@",
+        jsPath, [self.engine.jsc toString: jsErr], js
       ];
     }
   } else {
